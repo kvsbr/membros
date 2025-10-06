@@ -1,224 +1,938 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-MX">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7 Recetas de Tortillas Antiinflamatorias</title>
+    <title>Sanar con Sabor</title>
+    <!-- Carrega Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Carrega a fonte Inter do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Ícones Lucide para uma aparência moderna -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        /* Estilos personalizados para sobrescrever ou adicionar ao Tailwind, se necessário */
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Cor de fundo suave */
+        }
+        /* Efeito de sombra suave e cantos arredondados para cartões */
+        .card-style {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.7);
+        }
+        .modal-container {
+            max-height: 90vh; /* Para garantir que o modal não ocupe 100% da altura em desktop */
+        }
+        /* Estilos para o player de vídeo/iframe dentro do modal */
+        .player-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            background-color: #000;
+            border-radius: 8px;
+            width: 100%;
+        }
+        .player-container iframe,
+        .player-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Classes para simular um clique */
+        .clickable-card {
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .clickable-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Estilos específicos para o rodapé de navegação */
+        .bottom-nav {
+            background-color: white;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+            z-index: 50;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 0;
+            color: #6b7280; /* tailwind gray-500 */
+            transition: color 0.2s;
+        }
+        .nav-item.active {
+            color: #4D7C0F; /* Cor verde personalizada para ativo */
+        }
+        .nav-item:hover {
+            color: #4D7C0F; /* Cor verde personalizada ao passar o mouse */
+        }
+
+        /* Mobile-first adjustments for modal */
+        @media (max-width: 768px) {
+            .modal-container {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
+                border-radius: 0;
+                padding: 16px;
+                background: #000; /* Fundo escuro para experiência imersiva em mobile */
+                color: white;
+            }
+            .modal-title {
+                color: white;
+            }
+            .modal-close-btn {
+                color: white;
+            }
+            .modal-description-section {
+                background-color: #222; /* Fundo escuro para a descrição */
+            }
+        }
+
+        /* Esconder o scrollbar em navegadores Webkit */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col">
 
-    <div class="container mx-auto px-4 py-8 md:py-12">
-        <!-- Botón Volver -->
-        <div class="mb-8">
-            <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                </svg>
-                Volver
-            </a>
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Define o nível de log para debug
+        setLogLevel('debug');
+
+        // Variáveis globais (fornecidas pelo ambiente Canvas)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Exporta para o escopo global para que o JS abaixo possa usar
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.initialAuthToken = initialAuthToken;
+        window.appId = appId;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signInWithCustomToken = signInWithCustomToken;
+        window.signInAnonymously = signInAnonymously;
+        window.signOut = signOut;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.addDoc = addDoc;
+        window.setDoc = setDoc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.onSnapshot = onSnapshot;
+        window.collection = collection;
+        window.query = query;
+        window.where = where;
+        window.getDocs = getDocs;
+    </script>
+
+    <!-- Tela de Login -->
+    <section id="login-screen" class="absolute inset-0 bg-gray-100 flex items-center justify-center p-4 z-50">
+        <div class="card-style p-6 md:p-10 w-full max-w-sm text-center">
+            <h1 class="text-3xl font-bold text-gray-900 mb-6">¡Bienvenida!</h1>
+            <p class="text-gray-600 mb-8">Inicia sesión para acceder a tus recetas y planes de alimentación.</p>
+            <button id="login-button" class="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md">
+                Entrar
+            </button>
+            <p id="auth-status" class="mt-4 text-sm text-gray-500"></p>
         </div>
+    </section>
 
-        <!-- Encabezado -->
-        <header class="text-center mb-10 md:mb-16">
-            <h1 class="text-4xl md:text-5xl font-bold text-violet-700">7 Tortillas Antiinflamatorias</h1>
-            <p class="text-lg text-gray-600 mt-2">Recetas saludables, deliciosas y fáciles de preparar.</p>
+    <!-- Conteúdo Principal do Aplicativo (visível após login) -->
+    <div id="app-content" class="flex-grow flex flex-col hidden">
+        <!-- Cabeçalho Superior -->
+        <header class="bg-white shadow-sm py-4 px-4 flex items-center justify-between sticky top-0 z-40">
+            <h1 class="text-xl md:text-2xl font-bold text-gray-800">Tu Plan</h1>
+            <div class="flex items-center space-x-4">
+                <span id="user-id-display" class="text-sm text-gray-500 truncate max-w-[100px] md:max-w-xs">ID: Cargando...</span>
+                <button id="notification-button" class="relative p-2 rounded-full hover:bg-gray-100 transition-colors">
+                    <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
+                    <span class="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
+                </button>
+            </div>
         </header>
 
-        <!-- Parrilla de Recetas -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Seções do Aplicativo -->
+        <main class="flex-grow p-4 pb-20 md:p-6 overflow-y-auto hide-scrollbar">
+            <!-- Seção do Painel Principal -->
+            <section id="dashboard-section" class="main-container space-y-6">
+                <!-- Banner Superior -->
+                <div class="static-banner w-full aspect-video rounded-xl overflow-hidden shadow-lg">
+                    <img id="banner-img" src="" alt="Banner de bienvenida" loading="lazy" decoding="async" class="w-full h-full object-cover">
+                </div>
 
-            <!-- Receta 1: Tortilla de Coliflor -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
-                <img src="https://kvsbr.github.io/membros/couveflor.png" alt="Imagen de coliflor" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-4 text-violet-600">Tortilla de Coliflor</h2>
-                    <div>
-                        <h3 class="font-semibold text-lg mb-2">Ingredientes:</h3>
-                        <ul class="list-disc list-inside text-gray-700 space-y-1">
-                            <li>1.5 tazas de coliflor cocida (150 g)</li>
-                            <li>2 huevos grandes</li>
-                            <li>2/3 taza de avena en hojuelas (60g)</li>
-                            <li>1/2 taza de agua (125 ml)</li>
-                            <li>Una pizca de sal</li>
-                        </ul>
-                    </div>
-                    <div class="mt-4">
-                        <h3 class="font-semibold text-lg mb-2">Preparación:</h3>
-                        <ol class="list-decimal list-inside text-gray-700 space-y-2">
-                            <li>Cocina la coliflor y escúrrela bien.</li>
-                            <li>Licúa todos los ingredientes hasta obtener una masa homogénea.</li>
-                            <li>Calienta una sartén antiadherente a fuego medio. Vierte 1/4 de taza de la masa y extiéndela.</li>
-                            <li>Cocina por 2-3 minutos, dale la vuelta y cocina por 1-2 minutos más.</li>
-                            <li>Deja enfriar antes de guardar.</li>
-                        </ol>
-                    </div>
+                <!-- Seção Mis Libros -->
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 mt-8">Mis Libros</h2>
+                <div id="libros-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Cards dos livros serão inseridos aqui -->
                 </div>
-            </div>
 
-            <!-- Receta 2: Tortilla de Brócoli -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
-                <img src="https://kvsbr.github.io/membros/wraps%20brocolis.png" alt="Imagen de brócoli" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-4 text-teal-600">Tortilla de Brócoli</h2>
-                    <div>
-                        <h3 class="font-semibold text-lg mb-2">Ingredientes:</h3>
-                        <ul class="list-disc list-inside text-gray-700 space-y-1">
-                            <li>4.4 tazas de brócoli cocido (400 g)</li>
-                            <li>4 huevos</li>
-                            <li>Una pizca de sal</li>
-                        </ul>
-                    </div>
-                    <div class="mt-4">
-                        <h3 class="font-semibold text-lg mb-2">Preparación:</h3>
-                        <ol class="list-decimal list-inside text-gray-700 space-y-2">
-                            <li>Licúa el brócoli cocido, los huevos y la sal hasta que quede homogéneo.</li>
-                            <li>Calienta una sartén antiadherente engrasada y extiende la masa.</li>
-                            <li>Cocina a fuego medio hasta que los bordes comiencen a levantarse.</li>
-                            <li>Dale la vuelta y cocina por 1-2 minutos más.</li>
-                            <li>Deja enfriar completamente, ya que son frágiles cuando están calientes.</li>
-                        </ol>
-                    </div>
+                <!-- Seção Bonos Especiales -->
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4 mt-8">Bonos Especiales</h2>
+                <div id="bonos-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Cards dos bônus serão inseridos aqui -->
                 </div>
-            </div>
+            </section>
 
-            <!-- Receta 3: Tortilla de Lentejas -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
-                <img src="https://kvsbr.github.io/membros/lentilhas.png" alt="Imagen de lentejas" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-4 text-orange-600">Tortilla de Lentejas</h2>
-                    <div>
-                        <h3 class="font-semibold text-lg mb-2">Ingredientes:</h3>
-                        <ul class="list-disc list-inside text-gray-700 space-y-1">
-                            <li>0.78 tazas de lentejas secas (150 g)</li>
-                            <li>1.5 tazas de agua (360 ml)</li>
-                            <li>Una pizca de sal</li>
-                        </ul>
-                    </div>
-                    <div class="mt-4">
-                        <h3 class="font-semibold text-lg mb-2">Preparación:</h3>
-                        <ol class="list-decimal list-inside text-gray-700 space-y-2">
-                            <li>Lava las lentejas y déjalas en remojo durante al menos 3 horas.</li>
-                            <li>Licúa las lentejas con el agua de remojo y la sal.</li>
-                            <li>Calienta una sartén antiadherente. Vierte 1/3 de taza de la masa y extiéndela.</li>
-                            <li>Cocina por 3-4 minutos, dale la vuelta y cocina por un minuto más.</li>
-                        </ol>
-                    </div>
+            <!-- Seção de Módulo/Categoria (Subpágina) -->
+            <section id="subpage-section" class="main-container space-y-6 hidden">
+                <div class="flex items-center mb-6">
+                    <button id="back-to-dashboard" class="flex items-center text-green-700 hover:text-green-800 font-semibold text-lg transition-colors p-2 -ml-2 rounded-lg">
+                        <i data-lucide="arrow-left" class="w-6 h-6 mr-2"></i> Volver
+                    </button>
+                    <h2 id="subpage-title" class="text-2xl font-bold text-gray-800 ml-4"></h2>
                 </div>
-            </div>
-            
-            <!-- Receta 4: Tortilla de Quinoa -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
-                <img src="https://kvsbr.github.io/membros/quinoa.png" alt="Imagen de quinoa" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-4 text-pink-700">Tortilla de Quinoa</h2>
-                    <div>
-                        <h3 class="font-semibold text-lg mb-2">Ingredientes:</h3>
-                        <ul class="list-disc list-inside text-gray-700 space-y-1">
-                            <li>1/2 taza de quinoa cruda (100 g)</li>
-                            <li>1/2 taza de agua (125 ml)</li>
-                            <li>1/2 cucharadita de sal</li>
-                        </ul>
-                    </div>
-                    <div class="mt-4">
-                        <h3 class="font-semibold text-lg mb-2">Preparación:</h3>
-                        <ol class="list-decimal list-inside text-gray-700 space-y-2">
-                            <li>Lava bien la quinoa y déjala en remojo durante al menos 3 horas.</li>
-                            <li>Escurre y licúa la quinoa con el agua y la sal.</li>
-                            <li>Calienta una sartén antiadherente. Usa 1/4 de taza de la masa por tortilla.</li>
-                            <li>Cocina por 3-4 minutos por un lado y luego 1 minuto más por el otro.</li>
-                        </ol>
-                    </div>
+                <div id="subpage-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Os cartões da subpágina serão inseridos aqui -->
                 </div>
-            </div>
+            </section>
 
-            <!-- Receta 5: Tortilla de Remolacha y Quinoa -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
-                <img src="https://kvsbr.github.io/membros/beterraba.png" alt="Imagen de remolacha" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-4 text-red-700">Tortilla de Remolacha y Quinoa</h2>
-                    <div>
-                        <h3 class="font-semibold text-lg mb-2">Ingredientes:</h3>
-                        <ul class="list-disc list-inside text-gray-700 space-y-1">
-                            <li>2/3 taza de quinoa cruda (120 g)</li>
-                            <li>1/2 taza de agua (120 ml)</li>
-                            <li>1 taza de remolacha cocida (200 g)</li>
-                        </ul>
-                    </div>
-                    <div class="mt-4">
-                        <h3 class="font-semibold text-lg mb-2">Preparación:</h3>
-                        <ol class="list-decimal list-inside text-gray-700 space-y-2">
-                            <li>Lava la quinoa y déjala en remojo durante al menos 3 horas.</li>
-                            <li>Licúa la quinoa escurrida, el agua y la remolacha cocida.</li>
-                            <li>Calienta una sartén antiadherente. Vierte 1/3 de taza de la masa.</li>
-                            <li>Cocina hasta que los bordes se despeguen, dale la vuelta y cocina por 2 minutos más.</li>
-                        </ol>
-                    </div>
+            <!-- Seção Feed (Placeholder) -->
+            <section id="feed-section" class="main-container hidden space-y-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Novedades y Actualizaciones</h2>
+                <div class="card-style p-6 text-center text-gray-600">
+                    <p>Esta es la sección de Feed. ¡Mantente atento a nuevas publicaciones!</p>
+                    <i data-lucide="newspaper" class="w-12 h-12 text-gray-400 mx-auto mt-4"></i>
                 </div>
-            </div>
+                <!-- Você pode adicionar mais cards ou uma lista de posts aqui -->
+            </section>
 
-            <!-- Receta 6: Tortilla de Quinoa y Zanahoria -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
-                <img src="https://kvsbr.github.io/membros/Cenoura.png" alt="Imagen de zanahoria" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-4 text-amber-600">Tortilla de Quinoa y Zanahoria</h2>
-                    <div>
-                        <h3 class="font-semibold text-lg mb-2">Ingredientes:</h3>
-                        <ul class="list-disc list-inside text-gray-700 space-y-1">
-                            <li>1/2 taza de quinoa cruda (100 g)</li>
-                            <li>1/2 taza de agua (125 ml)</li>
-                            <li>1/2 cucharadita de sal</li>
-                            <li>1/2 taza de zanahoria rallada (50 g)</li>
-                            <li>2 cucharadas de cebollino picado (20 g)</li>
-                        </ul>
-                    </div>
-                    <div class="mt-4">
-                        <h3 class="font-semibold text-lg mb-2">Preparación:</h3>
-                        <ol class="list-decimal list-inside text-gray-700 space-y-2">
-                            <li>Deja la quinoa en remojo, escúrrela y licúala con agua y sal.</li>
-                            <li>Transfiere a un bol y mezcla la zanahoria y el cebollino.</li>
-                            <li>Calienta una sartén. Usa 1/4 de taza de la masa por tortilla.</li>
-                            <li>Cocina por 3-4 minutos, dale la vuelta y cocina por 1-2 minutos más.</li>
-                        </ol>
-                    </div>
+            <!-- Seção Comunidade (Placeholder) -->
+            <section id="community-section" class="main-container hidden space-y-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Comunidad</h2>
+                <div class="card-style p-6 text-center text-gray-600">
+                    <p>¡Bienvenida a la comunidad! Conéctate con otros miembros.</p>
+                    <i data-lucide="users" class="w-12 h-12 text-gray-400 mx-auto mt-4"></i>
                 </div>
-            </div>
-            
-            <!-- Receta 7: Tortillas de Tofu -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 md:col-start-2 lg:col-start-auto">
-                 <img src="https://kvsbr.github.io/membros/tofu.png" alt="Imagen de tofu" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-4 text-blue-gray-700">Tortillas de Tofu</h2>
-                    <div>
-                        <h3 class="font-semibold text-lg mb-2">Ingredientes:</h3>
-                        <ul class="list-disc list-inside text-gray-700 space-y-1">
-                            <li>1 1/3 tazas de tofu firme (300 g)</li>
-                            <li>1 taza de harina de almendras (100 g)</li>
-                            <li>1/2 taza de agua (125 ml)</li>
-                            <li>Una pizca de sal</li>
-                        </ul>
-                    </div>
-                    <div class="mt-4">
-                        <h3 class="font-semibold text-lg mb-2">Preparación:</h3>
-                        <ol class="list-decimal list-inside text-gray-700 space-y-2">
-                            <li>Escurre bien el tofu para eliminar el exceso de líquido.</li>
-                            <li>Licúa todos los ingredientes hasta obtener una masa homogénea.</li>
-                            <li>Calienta una sartén antiadherente. Vierte 1/3 de taza de la masa.</li>
-                            <li>Cocina por 3-4 minutos, dale la vuelta con cuidado y cocina por 1 minuto más.</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
+                <!-- Futuramente, pode ser um chat ou fórum -->
+            </section>
 
+            <!-- Seção Perfil -->
+            <section id="profile-section" class="main-container hidden space-y-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Mi Perfil</h2>
+                <div class="card-style p-6 flex flex-col items-center space-y-4">
+                    <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-5xl font-bold">
+                        <i data-lucide="user" class="w-16 h-16"></i>
+                    </div>
+                    <p class="text-xl font-semibold text-gray-900" id="profile-user-name">Miembro Premium</p>
+                    <p class="text-sm text-gray-500" id="profile-user-id">ID: Cargando...</p>
+                    <button id="logout-button" class="mt-6 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors shadow-md">
+                        Salir
+                    </button>
+                </div>
+                <div class="card-style p-6 space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Configuración de la Cuenta</h3>
+                    <p class="text-gray-600">Opciones de configuración en desarrollo.</p>
+                </div>
+                <div class="card-style p-6 space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Progreso</h3>
+                    <p class="text-gray-600">¡Seguimiento del progreso próximamente!</p>
+                </div>
+                <div class="card-style p-6 space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Soporte</h3>
+                    <p class="text-gray-600">¿Necesitas ayuda? <a href="#" class="text-green-700 hover:underline">Contacta con nosotros</a>.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Barra de Navegação Inferior -->
+        <nav class="bottom-nav fixed bottom-0 left-0 right-0 w-full md:hidden flex justify-around items-center h-16">
+            <button class="nav-item active" data-target="dashboard-section">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                <span class="text-xs mt-1">Inicio</span>
+            </button>
+            <button class="nav-item" data-target="feed-section">
+                <i data-lucide="newspaper" class="w-5 h-5"></i>
+                <span class="text-xs mt-1">Feed</span>
+            </button>
+            <button class="nav-item" data-target="community-section">
+                <i data-lucide="users" class="w-5 h-5"></i>
+                <span class="text-xs mt-1">Comunidad</span>
+            </button>
+            <button class="nav-item" data-target="profile-section">
+                <i data-lucide="user" class="w-5 h-5"></i>
+                <span class="text-xs mt-1">Perfil</span>
+            </button>
+        </nav>
+    </div> <!-- Fim do app-content -->
+
+    <!-- Modal para Conteúdo (Vídeos, iframes, Receitas Detalhadas) -->
+    <div id="content-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-container card-style p-4 md:p-8 w-full md:max-w-3xl lg:max-w-5xl relative flex flex-col">
+            <header class="modal-header flex justify-between items-center pb-3 border-b border-gray-200 mb-4 md:mb-6">
+                <h3 id="modal-title" class="modal-title text-xl md:text-2xl font-bold text-gray-900"></h3>
+                <button id="modal-close-btn" class="modal-close-btn p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Cerrar modal">
+                    <i data-lucide="x" class="w-6 h-6 text-gray-600"></i>
+                </button>
+            </header>
+            <div class="modal-body flex-grow overflow-y-auto hide-scrollbar space-y-4">
+                <!-- Player de Iframe/YouTube -->
+                <div id="iframe-player" class="player-container hidden">
+                    <iframe
+                        id="modal-iframe"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="no-referrer"
+                        allowfullscreen
+                    ></iframe>
+                </div>
+                <!-- Player de Vídeo MP4 -->
+                <div id="video-player" class="player-container hidden">
+                    <video id="modal-video" controls autoplay playsinline class="w-full h-full"></video>
+                </div>
+                <!-- Descrição, Ingredientes, Modo de Preparo -->
+                <div id="modal-recipe-details" class="space-y-4 hidden">
+                    <div id="modal-description-section" class="modal-description-section card-style p-4 text-gray-700 leading-relaxed hidden">
+                        <p class="text-lg font-medium mb-2">Descripción:</p>
+                        <p id="modal-description-text" class="text-sm"></p>
+                    </div>
+
+                    <div id="modal-ingredients-section" class="modal-description-section card-style p-4 text-gray-700 leading-relaxed hidden">
+                        <h4 class="text-lg font-medium mb-2">Ingredientes:</h4>
+                        <ul id="modal-ingredients" class="list-disc list-inside text-sm space-y-1"></ul>
+                    </div>
+
+                    <div id="modal-preparation-section" class="modal-description-section card-style p-4 text-gray-700 leading-relaxed hidden">
+                        <h4 class="text-lg font-medium mb-2">Modo de Preparación:</h4>
+                        <ol id="modal-preparation" class="list-decimal list-inside text-sm space-y-1"></ol>
+                    </div>
+                </div>
+                <!-- Detalhes para Download -->
+                <div id="modal-download-details" class="space-y-4 hidden text-center">
+                    <img id="modal-download-image" src="" alt="Imagen del Producto" class="w-full max-w-sm mx-auto rounded-lg shadow-md mb-4">
+                    <div id="modal-download-description-section" class="card-style p-4 text-gray-700 leading-relaxed">
+                        <p id="modal-download-description-text" class="text-base"></p>
+                    </div>
+                    <a id="modal-download-button" href="#" download target="_blank" class="inline-block w-full mt-4 bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md">
+                        <i data-lucide="download" class="inline-block w-5 h-5 mr-2"></i>
+                        Descargar Ahora
+                    </a>
+                </div>
+            </div>
+            <!-- Botões opcionais, se aplicável -->
+            <div id="modal-action-buttons" class="mt-4 pt-4 border-t border-gray-200 flex justify-end space-x-2 hidden">
+                <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Marcar como Completado</button>
+                <button class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Añadir a Favoritos</button>
+            </div>
         </div>
-
     </div>
+
+
+    <script type="module">
+        // Certifica-se de que o DOM está totalmente carregado antes de inicializar o JS
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Inicializa ícones Lucide
+            lucide.createIcons();
+
+            // =================================================================================
+            // CONFIGURACIÓN Y DATOS INICIALES
+            // =================================================================================
+            const IMG_BASE_URL = "https://receitas.portalvenda.com/area-de-membros/imagens/";
+            const SVG_PLACEHOLDER = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90'%3E%3Crect width='160' height='90' fill='%23e0e0e0'/%3E%3Ctext x='50%' y='50%' fill='%23999' font-size='12' text-anchor='middle' dominant-baseline='middle'%3Esin imagen%3C/text%3E%3C/svg%3E`;
+
+            // Enum para tipos de contenido
+            const CONTENT_TYPE = {
+                SUBPAGE: 'subpage',
+                MODAL_IFRAME: 'modal-iframe',
+                MODAL_YOUTUBE: 'modal-youtube',
+                MODAL_VIDEO: 'modal-video',
+                MODAL_RECIPE: 'modal-recipe',
+                MODAL_DOWNLOAD: 'modal-download'
+            };
+
+            // --- Datos de los cards del Panel Principal ---
+            // =================================================================================
+            //  >>> EDITABLE: AÑADE, ELIMINA O EDITA LOS ELEMENTOS DE LA PANTALLA PRINCIPAL AQUÍ <<<
+            // =================================================================================
+            // Tipos de contenido disponibles:
+            // type: CONTENT_TYPE.SUBPAGE           -> Abre la subpágina (definida en SUBPAGE_ITEMS)
+            // type: CONTENT_TYPE.MODAL_IFRAME      -> Abre un sitio web externo en un modal
+            // type: CONTENT_TYPE.MODAL_YOUTUBE     -> Abre un video de YouTube en un modal
+            // type: CONTENT_TYPE.MODAL_VIDEO       -> Abre un video .mp4 en un modal
+            // type: CONTENT_TYPE.MODAL_RECIPE      -> Abre un modal con detalles de receta (ingredientes, preparación)
+            // type: CONTENT_TYPE.MODAL_DOWNLOAD    -> Abre un modal con un botón para descargar un archivo (PDF, etc.)
+            //
+            // Para cada elemento, completa:
+            // title: 'Texto que aparece en la tarjeta'
+            // image: 'nombre-del-archivo-de-imagen.jpg' (la imagen debe estar en la carpeta /imagens/)
+            // cardStyle: 'dark' o 'light' (opcional, 'light' es el predeterminado) -> Define el estilo de la tarjeta.
+            // ...otras propiedades dependiendo del 'type'
+            // =================================================================================
+            const PROGRAMA_PRINCIPAL = [
+                 { type: CONTENT_TYPE.SUBPAGE, title: 'Programa Principal', image: '', cardStyle: 'dark' },
+            ];
+
+            const LIBROS_ITEMS = [
+                {
+                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
+                    title: 'Mi Libro de Recetas',
+                    image: '', // << Poner el nombre de la imagen del libro aquí
+                    cardStyle: 'light',
+                    description: 'Descarga mi libro principal con más de 50 recetas exclusivas.',
+                    downloadUrl: '#' // << Poner el enlace directo al archivo PDF aquí
+                },
+                {
+                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
+                    title: 'Guía de Inicio Rápido',
+                    image: '', // << Poner el nombre de la imagen de la guía aquí
+                    cardStyle: 'light',
+                    description: 'La guía perfecta para empezar tu camino hacia una vida más sana.',
+                    downloadUrl: '#' // << Poner el enlace directo al archivo PDF aquí
+                },
+            ];
+
+            const BONOS_ITEMS = [
+                {
+                    type: CONTENT_TYPE.MODAL_IFRAME,
+                    title: 'Bono: 7 Tortillas Antiinflamatorias',
+                    image: 'https://kvsbr.github.io/membros/cards/cards_tortillas.png', // << Imagem adicionada
+                    cardStyle: 'dark',
+                    iframeSrc: 'https://kvsbr.github.io/membros/tortillas/',
+                    iframeTitle: '7 Tortillas Antiinflamatorias'
+                },
+                {
+                    type: CONTENT_TYPE.MODAL_YOUTUBE,
+                    title: 'Bono: Rutina de Ejercicios',
+                    image: '', // << Poner imagen del bono aquí
+                    cardStyle: 'light',
+                    description: 'Video exclusivo con una rutina de 15 minutos para hacer en casa.',
+                    youtubeUrl: '#' // << Poner el enlace de tu video de YouTube aquí
+                },
+                 {
+                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
+                    title: 'Bono: Menú Semanal',
+                    image: '', // << Poner imagen del bono aquí
+                    cardStyle: 'dark',
+                    description: 'Un menú semanal listo para descargar e imprimir.',
+                    downloadUrl: '#' // << Poner el enlace directo al archivo PDF aquí
+                },
+            ];
+
+            // --- Dados de los cards de la Subpágina ---
+            const SUBPAGE_ITEMS = [
+                {
+                    type: CONTENT_TYPE.MODAL_VIDEO,
+                    title: 'Módulo 1: Empieza Aquí',
+                    image: '',
+                    videoSrc: '', // Enlace a tu video .mp4
+                    description: 'Una guía rápida para comenzar tu viaje en el programa.'
+                },
+                {
+                    type: CONTENT_TYPE.MODAL_YOUTUBE,
+                    title: 'Módulo 2: Introducción',
+                    image: '',
+                    youtubeUrl: '', // Enlace a tu video de YouTube
+                    description: 'Video introductorio al programa.'
+                },
+                {
+                    type: CONTENT_TYPE.MODAL_RECIPE,
+                    title: 'Módulo 3: Receta Especial',
+                    image: '',
+                    youtubeUrl: '', // Puede tener un video junto con la receta
+                    description: 'Descripción de la receta especial del módulo 3.',
+                    ingredients: ['Ingrediente X', 'Ingrediente Y'],
+                    preparation: ['Paso X', 'Paso Y']
+                },
+                {
+                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
+                    title: 'Módulo 4: Material de Apoyo',
+                    image: '',
+                    description: 'Material de apoyo en PDF para el módulo 4.',
+                    downloadUrl: '#' // Enlace al PDF del módulo 4
+                }
+            ];
+
+            // =================================================================================
+            // ELEMENTOS DEL DOM
+            // =================================================================================
+            const loginScreen = document.getElementById('login-screen');
+            const loginButton = document.getElementById('login-button');
+            const authStatus = document.getElementById('auth-status');
+            const appContent = document.getElementById('app-content');
+            const userIdDisplay = document.getElementById('user-id-display');
+
+            const dashboardSection = document.getElementById('dashboard-section');
+            const subpageSection = document.getElementById('subpage-section');
+            const feedSection = document.getElementById('feed-section');
+            const communitySection = document.getElementById('community-section');
+            const profileSection = document.getElementById('profile-section');
+
+            const bannerImg = document.getElementById('banner-img');
+            const librosGrid = document.getElementById('libros-grid');
+            const bonosGrid = document.getElementById('bonos-grid');
+            const subpageGrid = document.getElementById('subpage-grid');
+            const backToDashboardBtn = document.getElementById('back-to-dashboard');
+            const subpageTitle = document.getElementById('subpage-title');
+
+            const modal = document.getElementById('content-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const iframePlayer = document.getElementById('iframe-player');
+            const modalIframe = document.getElementById('modal-iframe');
+            const videoPlayer = document.getElementById('video-player');
+            const modalVideo = document.getElementById('modal-video');
+
+            const modalRecipeDetails = document.getElementById('modal-recipe-details');
+            const modalDescriptionSection = document.getElementById('modal-description-section');
+            const modalDescriptionText = document.getElementById('modal-description-text');
+            const modalIngredientsSection = document.getElementById('modal-ingredients-section');
+            const modalIngredients = document.getElementById('modal-ingredients');
+            const modalPreparationSection = document.getElementById('modal-preparation-section');
+            const modalPreparation = document.getElementById('modal-preparation');
+            const modalActionButtons = document.getElementById('modal-action-buttons');
+
+            // Nuevos elementos para o modal de download
+            const modalDownloadDetails = document.getElementById('modal-download-details');
+            const modalDownloadImage = document.getElementById('modal-download-image');
+            const modalDownloadDescriptionText = document.getElementById('modal-download-description-text');
+            const modalDownloadButton = document.getElementById('modal-download-button');
+
+            const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+            const profileUserName = document.getElementById('profile-user-name');
+            const profileUserId = document.getElementById('profile-user-id');
+            const logoutButton = document.getElementById('logout-button');
+
+            let currentView = 'dashboard-section'; // Estado para controlar a seção visível
+            let lastFocusedElement; // Para acessibilidade do modal
+
+            // =================================================================================
+            // FUNCIONES AUXILIARES
+            // =================================================================================
+
+            /**
+             * Converte uma URL do YouTube para uma URL de incorporação (embed).
+             * @param {string} url - A URL original do YouTube.
+             * @returns {string|null} A URL de incorporação ou null se inválida.
+             */
+            const convertToEmbedUrl = (url) => {
+                let videoId = null;
+                if(!url || typeof url !== 'string') return null;
+                if (url.includes('youtu.be/')) {
+                    videoId = url.split('youtu.be/')[1].split('?')[0];
+                } else if (url.includes('watch?v=')) {
+                    videoId = new URL(url).searchParams.get('v');
+                } else if (url.includes('/shorts/')) {
+                    videoId = url.split('/shorts/')[1].split('?')[0];
+                }
+                return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+            };
+
+            /**
+             * Remove acentos de uma string.
+             * @param {string} str - A string de entrada.
+             * @returns {string} A string sem acentos.
+             */
+            const removeAccents = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+            /**
+             * Tenta carregar uma imagem a partir de vários caminhos possíveis (com e sem acentos, com %20).
+             * Define um placeholder SVG se nenhuma imagem for encontrada.
+             * @param {HTMLImageElement} imgElement - O elemento <img>.
+             * @param {string} imageName - O nome do arquivo da imagem ou uma URL completa.
+             */
+            const loadImageSmart = (imgElement, imageName) => {
+                 if (!imageName) {
+                    imgElement.src = SVG_PLACEHOLDER;
+                    return;
+                }
+
+                // Se imageName for uma URL completa, use-a diretamente
+                if (imageName.startsWith('http')) {
+                    imgElement.src = imageName;
+                    imgElement.onerror = () => { imgElement.src = SVG_PLACEHOLDER; };
+                    return;
+                }
+
+                const potentialPaths = [...new Set([
+                    imageName,
+                    encodeURIComponent(imageName), // Encoding completo
+                    imageName.replace(/ /g, '%20'), // Somente espaços
+                    removeAccents(imageName),
+                    encodeURIComponent(removeAccents(imageName)),
+                    removeAccents(imageName).replace(/ /g, '%20')
+                ])];
+                let pathIndex = 0;
+                const tryNextPath = () => {
+                    if (pathIndex >= potentialPaths.length) {
+                        imgElement.src = SVG_PLACEHOLDER;
+                        return;
+                    }
+                    const testImg = new Image();
+                    const path = IMG_BASE_URL + potentialPaths[pathIndex];
+                    testImg.onload = () => { imgElement.src = path; };
+                    testImg.onerror = () => { pathIndex++; tryNextPath(); };
+                    testImg.src = path;
+                };
+                tryNextPath();
+            };
+
+            /**
+             * Cria um elemento de cartão para exibição.
+             * @param {object} item - Os dados do item para o cartão.
+             * @returns {HTMLDivElement} O elemento do cartão criado.
+             */
+            const createCard = (item) => {
+                const card = document.createElement('div');
+                card.className = 'clickable-card card-style flex flex-col w-full'; // Adiciona classes Tailwind
+
+                // Container da imagem
+                const cardImageContainer = document.createElement('div');
+                cardImageContainer.className = 'w-full aspect-[4/3] flex items-center justify-center bg-gray-100'; // Proporção 4:3 para a imagem
+                const img = document.createElement('img');
+                img.loading = 'lazy';
+                img.decoding = 'async';
+                img.alt = item.title;
+                img.className = 'w-full h-full object-cover'; // Garante que a imagem preencha o container
+                loadImageSmart(img, item.image);
+                cardImageContainer.appendChild(img);
+
+                // Título do cartão
+                const cardTitle = document.createElement('div');
+                cardTitle.className = 'p-3 text-center font-semibold text-sm flex-grow flex items-center justify-center min-h-[50px]';
+                cardTitle.textContent = item.title;
+                
+                // Aplica estilo condicional (dark/light)
+                if (item.cardStyle === 'dark') {
+                    card.classList.add('bg-gray-800');
+                    cardTitle.classList.add('text-white');
+                } else {
+                    // O padrão é 'light', já definido pela classe .card-style (bg-white)
+                    cardTitle.classList.add('text-gray-800');
+                }
+
+                card.appendChild(cardImageContainer);
+                card.appendChild(cardTitle);
+
+                return card;
+            };
+
+            /**
+             * Preenche uma grade com cartões.
+             * @param {HTMLElement} gridElement - O elemento da grade a ser preenchido.
+             * @param {Array<object>} items - Array de itens para criar os cartões.
+             */
+            const populateGrid = (gridElement, items) => {
+                gridElement.innerHTML = '';
+                items.forEach((item) => {
+                    const card = createCard(item);
+                    card.addEventListener('click', () => {
+                        if (item.type === CONTENT_TYPE.SUBPAGE) {
+                            showSubpage(item.title);
+                        } else {
+                            openModal(item);
+                        }
+                    });
+                    gridElement.appendChild(card);
+                });
+            };
+
+            // =================================================================================
+            // LÓGICA DE NAVEGACIÓN Y VISIBILIDAD DE SECCIONES
+            // =================================================================================
+
+            /**
+             * Alterna a visibilidade das seções do aplicativo.
+             * @param {string} sectionId - O ID da seção a ser mostrada.
+             */
+            const showSection = (sectionId) => {
+                const sections = [dashboardSection, subpageSection, feedSection, communitySection, profileSection];
+                sections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+                document.getElementById(sectionId).classList.remove('hidden');
+                currentView = sectionId;
+
+                // Atualiza o estado ativo da barra de navegação inferior
+                navItems.forEach(item => {
+                    if (item.dataset.target === sectionId) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+                window.scrollTo(0, 0); // Rola para o topo da página ao mudar de seção
+            };
+
+            const showDashboard = () => showSection('dashboard-section');
+
+            const showSubpage = (title) => {
+                subpageTitle.textContent = title;
+                showSection('subpage-section');
+            };
+
+            // =================================================================================
+            // LÓGICA DEL MODAL
+            // =================================================================================
+
+            /**
+             * Abre o modal com o conteúdo do item selecionado.
+             * @param {object} item - O item (receita, vídeo, iframe) a ser exibido no modal.
+             */
+            const openModal = (item) => {
+                lastFocusedElement = document.activeElement; // Salva o elemento focado para acessibilidade
+                modalTitle.textContent = item.iframeTitle || item.title;
+
+                // Esconde todos os players e seções de detalhes de receita
+                iframePlayer.classList.add('hidden');
+                videoPlayer.classList.add('hidden');
+                modalRecipeDetails.classList.add('hidden');
+                modalDownloadDetails.classList.add('hidden'); // Esconde a nova seção
+                modalDescriptionSection.classList.add('hidden');
+                modalIngredientsSection.classList.add('hidden');
+                modalPreparationSection.classList.add('hidden');
+                modalActionButtons.classList.add('hidden');
+
+                // Limpa fontes de vídeo/iframe
+                modalIframe.src = '';
+                modalVideo.pause();
+                modalVideo.src = '';
+
+                // Define o conteúdo do modal com base no tipo de item
+                if (item.type === CONTENT_TYPE.MODAL_VIDEO) {
+                    videoPlayer.classList.remove('hidden');
+                    modalVideo.src = item.videoSrc;
+                } else if (item.type === CONTENT_TYPE.MODAL_YOUTUBE) {
+                    iframePlayer.classList.remove('hidden');
+                    modalIframe.src = convertToEmbedUrl(item.youtubeUrl);
+                    modalIframe.removeAttribute('sandbox'); // Remove sandbox para vídeos do YouTube
+                } else if (item.type === CONTENT_TYPE.MODAL_IFRAME) {
+                    iframePlayer.classList.remove('hidden');
+                    modalIframe.src = item.iframeSrc;
+                    if (item.sandbox) {
+                        modalIframe.setAttribute('sandbox', item.sandbox);
+                    } else {
+                        modalIframe.removeAttribute('sandbox');
+                    }
+                } else if (item.type === CONTENT_TYPE.MODAL_RECIPE) {
+                    modalRecipeDetails.classList.remove('hidden');
+                    if (item.youtubeUrl) { // Se a receita também tiver um vídeo, exibe-o
+                        iframePlayer.classList.remove('hidden');
+                        modalIframe.src = convertToEmbedUrl(item.youtubeUrl);
+                        modalIframe.removeAttribute('sandbox');
+                    } else if (item.videoSrc) {
+                        videoPlayer.classList.remove('hidden');
+                        modalVideo.src = item.videoSrc;
+                    }
+
+                    // Preenche a descrição
+                    if (item.description && item.description.trim() !== '') {
+                        modalDescriptionSection.classList.remove('hidden');
+                        modalDescriptionText.textContent = item.description;
+                    }
+
+                    // Preenche os ingredientes
+                    if (item.ingredients && item.ingredients.length > 0) {
+                        modalIngredientsSection.classList.remove('hidden');
+                        modalIngredients.innerHTML = '';
+                        item.ingredients.forEach(ingredient => {
+                            const li = document.createElement('li');
+                            li.textContent = ingredient;
+                            modalIngredients.appendChild(li);
+                        });
+                    }
+
+                    // Preenche o modo de preparo
+                    if (item.preparation && item.preparation.length > 0) {
+                        modalPreparationSection.classList.remove('hidden');
+                        modalPreparation.innerHTML = '';
+                        item.preparation.forEach(step => {
+                            const li = document.createElement('li');
+                            li.textContent = step;
+                            modalPreparation.appendChild(li);
+                        });
+                    }
+                    modalActionButtons.classList.remove('hidden'); // Exibe botões para receitas
+                } else if (item.type === CONTENT_TYPE.MODAL_DOWNLOAD) {
+                    modalDownloadDetails.classList.remove('hidden');
+                    loadImageSmart(modalDownloadImage, item.image);
+                    modalDownloadImage.alt = `Imagen de ${item.title}`;
+                    
+                    if (item.description) {
+                        modalDownloadDescriptionText.textContent = item.description;
+                    } else {
+                        modalDownloadDescriptionText.textContent = `Haz clic en el botón de abajo para descargar "${item.title}".`;
+                    }
+
+                    if (item.downloadUrl && item.downloadUrl !== '#') {
+                        modalDownloadButton.href = item.downloadUrl;
+                    } else {
+                        modalDownloadButton.href = '#'; // Link de fallback
+                        modalDownloadButton.onclick = (e) => { e.preventDefault(); alert('Enlace de descarga no configurado.'); };
+                    }
+                    lucide.createIcons(); // Recria ícones dentro do modal
+                }
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex'); // Garante que o modal use flex para centralização
+                document.body.style.overflow = 'hidden'; // Impede o scroll do corpo
+                modalCloseBtn.focus(); // Foca no botão de fechar para acessibilidade
+            };
+
+            /**
+             * Fecha o modal, limpa os conteúdos e restaura o foco.
+             */
+            const closeModal = () => {
+                modalIframe.src = '';
+                modalVideo.pause();
+                modalVideo.src = '';
+
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = ''; // Restaura o scroll do corpo
+                if (lastFocusedElement) lastFocusedElement.focus(); // Restaura o foco anterior
+            };
+
+            // =================================================================================
+            // LÓGICA DE AUTENTICACIÓN FIREBASE
+            // =================================================================================
+
+            let currentUserId = null;
+
+            /**
+             * Lida com a autenticação de login.
+             * Tenta signInWithCustomToken se disponível, caso contrário signInAnonymously.
+             */
+            const handleLogin = async () => {
+                authStatus.textContent = 'Autenticando...';
+                try {
+                    if (window.initialAuthToken) {
+                        await window.signInWithCustomToken(window.firebaseAuth, window.initialAuthToken);
+                        console.log("Login con token personalizado exitoso.");
+                    } else {
+                        await window.signInAnonymously(window.firebaseAuth);
+                        console.log("Login anónimo exitoso.");
+                    }
+                } catch (error) {
+                    console.error("Error de autenticación:", error);
+                    authStatus.textContent = `Error de login: ${error.message}`;
+                }
+            };
+
+            /**
+             * Lida com o logout do usuário.
+             */
+            const handleLogout = async () => {
+                try {
+                    await window.signOut(window.firebaseAuth);
+                    console.log("Logout exitoso.");
+                } catch (error) {
+                    console.error("Error al cerrar sesión:", error);
+                    alert("Error al cerrar sesión. Inténtalo de nuevo.");
+                }
+            };
+
+            /**
+             * Listener de mudança de estado de autenticação do Firebase.
+             * Mostra/esconde a tela de login e o conteúdo do app.
+             */
+            window.onAuthStateChanged(window.firebaseAuth, (user) => {
+                if (user) {
+                    // Usuário logado
+                    console.log("Usuario autenticado:", user.uid);
+                    currentUserId = user.uid;
+                    userIdDisplay.textContent = `ID: ${currentUserId}`;
+                    profileUserId.textContent = `ID: ${currentUserId}`;
+                    
+                    loginScreen.classList.add('hidden');
+                    appContent.classList.remove('hidden');
+
+                    // Após o login, garantir que a dashboard esteja visível e ícones renderizados
+                    showDashboard();
+                    lucide.createIcons(); // Recriar ícones para o conteúdo do app
+                } else {
+                    // Usuário deslogado
+                    console.log("Usuario no autenticado.");
+                    currentUserId = null;
+                    loginScreen.classList.remove('hidden');
+                    appContent.classList.add('hidden');
+                    authStatus.textContent = ''; // Limpa a mensagem de status
+                }
+            });
+
+            // =================================================================================
+            // EVENT LISTENERS
+            // =================================================================================
+
+            loginButton.addEventListener('click', handleLogin);
+            logoutButton.addEventListener('click', handleLogout);
+
+            backToDashboardBtn.addEventListener('click', showDashboard);
+            modalCloseBtn.addEventListener('click', closeModal);
+
+            // Fecha o modal ao clicar fora dele
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            // Fecha o modal ao pressionar ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeModal();
+                }
+            });
+
+            // Navegação inferior
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetSection = item.dataset.target;
+                    showSection(targetSection);
+                });
+            });
+
+            // =================================================================================
+            // INICIALIZACIÓN
+            // =================================================================================
+            const initApp = () => {
+                // Popula a grade principal com todos os itens
+                populateGrid(librosGrid, [...PROGRAMA_PRINCIPAL, ...LIBROS_ITEMS]);
+                populateGrid(bonosGrid, BONOS_ITEMS);
+
+
+                // Popula a grade da subpágina Mounjaro Natural
+                populateGrid(subpageGrid, SUBPAGE_ITEMS);
+
+                // Carrega a imagem do banner
+                loadImageSmart(bannerImg, '');
+
+                // Garante que o estado inicial do Lucide Icons é aplicado
+                lucide.createIcons();
+            };
+
+            initApp();
+        });
+    </script>
 </body>
 </html>
 
