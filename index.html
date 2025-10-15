@@ -162,7 +162,7 @@
                 </div>
                 <div class="card-style p-4 md:p-8 flex flex-col md:flex-row items-center gap-8">
                     <div class="w-full md:w-1/3">
-                        <img id="upsell-image" src="" alt="Oferta Especial" class="rounded-lg shadow-lg w-full object-cover aspect-square">
+                        <img id="upsell-image" src="" alt="Oferta Especial" class="rounded-lg shadow-lg w-full object-cover object-top aspect-square">
                     </div>
                     <div class="w-full md:w-2/3 text-center md:text-left">
                         <h2 id="upsell-title" class="text-3xl font-bold text-gray-900 mb-4"></h2>
@@ -546,7 +546,7 @@ Estas recetas fueron pensadas para sanar desde la mesa del mediodía, ayudando a
                     const slide = document.createElement('div');
                     slide.className = 'w-full h-full flex-shrink-0';
                     const img = document.createElement('img');
-                    img.className = 'w-full h-full object-cover';
+                    img.className = 'w-full h-full object-cover object-top';
                     img.alt = banner.alt;
                     loadImageSmart(img, banner.image);
                     slide.appendChild(img);
@@ -653,7 +653,7 @@ Estas recetas fueron pensadas para sanar desde la mesa del mediodía, ayudando a
                 img.loading = 'lazy';
                 img.decoding = 'async';
                 img.alt = item.title;
-                img.className = 'w-full h-full object-cover';
+                img.className = 'w-full h-full object-cover object-top';
                 loadImageSmart(img, item.image);
                 cardImageContainer.appendChild(img);
 
