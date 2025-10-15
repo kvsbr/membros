@@ -59,28 +59,6 @@
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.12);
         }
 
-        /* Estilos específicos para o rodapé de navegação */
-        .bottom-nav {
-            background-color: white;
-            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
-            z-index: 50;
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 0;
-            color: #6b7280; /* tailwind gray-500 */
-            transition: color 0.2s;
-        }
-        .nav-item.active {
-            color: #4D7C0F; /* Cor verde personalizada para ativo */
-        }
-        .nav-item:hover {
-            color: #4D7C0F; /* Cor verde personalizada ao passar o mouse */
-        }
-
         /* Mobile-first adjustments for modal */
         @media (max-width: 768px) {
             .modal-container {
@@ -130,7 +108,7 @@
         </header>
 
         <!-- Seções do Aplicativo -->
-        <main class="flex-grow p-4 pb-20 md:p-6 overflow-y-auto hide-scrollbar">
+        <main class="flex-grow p-4 md:p-6 overflow-y-auto hide-scrollbar">
             <!-- Seção do Painel Principal -->
             <section id="dashboard-section" class="main-container space-y-6">
                 <!-- Carrossel de Banners -->
@@ -237,26 +215,6 @@
                 </div>
             </section>
         </main>
-
-        <!-- Barra de Navegação Inferior -->
-        <nav class="bottom-nav fixed bottom-0 left-0 right-0 w-full md:hidden flex justify-around items-center h-16">
-            <button class="nav-item active" data-target="dashboard-section">
-                <i data-lucide="home" class="w-5 h-5"></i>
-                <span class="text-xs mt-1">Inicio</span>
-            </button>
-            <button class="nav-item" data-target="feed-section">
-                <i data-lucide="newspaper" class="w-5 h-5"></i>
-                <span class="text-xs mt-1">Feed</span>
-            </button>
-            <button class="nav-item" data-target="community-section">
-                <i data-lucide="users" class="w-5 h-5"></i>
-                <span class="text-xs mt-1">Comunidad</span>
-            </button>
-            <button class="nav-item" data-target="profile-section">
-                <i data-lucide="user" class="w-5 h-5"></i>
-                <span class="text-xs mt-1">Perfil</span>
-            </button>
-        </nav>
     </div> <!-- Fim do app-content -->
 
     <!-- Modal para Conteúdo (Vídeos, iframes, Receitas Detalhadas) -->
@@ -567,8 +525,6 @@ Estas recetas fueron pensadas para sanar desde la mesa del mediodía, ayudando a
 
             const toastNotification = document.getElementById('toast-notification');
             const toastMessage = document.getElementById('toast-message');
-
-            const navItems = document.querySelectorAll('.bottom-nav .nav-item');
             
             let currentView = 'dashboard-section';
             let lastFocusedElement;
@@ -753,12 +709,16 @@ Estas recetas fueron pensadas para sanar desde la mesa del mediodía, ayudando a
             const showSection = (sectionId) => {
                 const sections = [dashboardSection, subpageSection, upsellPageSection, feedSection, communitySection, profileSection];
                 sections.forEach(section => section.classList.add('hidden'));
-                document.getElementById(sectionId).classList.remove('hidden');
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                }
                 currentView = sectionId;
 
-                navItems.forEach(item => {
-                    item.classList.toggle('active', item.dataset.target === sectionId);
-                });
+                // This part is removed as navItems is no longer available.
+                // navItems.forEach(item => {
+                //     item.classList.toggle('active', item.dataset.target === sectionId);
+                // });
                 window.scrollTo(0, 0);
             };
 
@@ -849,9 +809,10 @@ Estas recetas fueron pensadas para sanar desde la mesa del mediodía, ayudando a
                 }
             });
 
-            navItems.forEach(item => {
-                item.addEventListener('click', () => showSection(item.dataset.target));
-            });
+            // This part is removed as navItems is no longer available.
+            // navItems.forEach(item => {
+            //     item.addEventListener('click', () => showSection(item.dataset.target));
+            // });
 
             // =================================================================================
             // INICIALIZAÇÃO
@@ -869,3 +830,4 @@ Estas recetas fueron pensadas para sanar desde la mesa del mediodía, ayudando a
     </script>
 </body>
 </html>
+
