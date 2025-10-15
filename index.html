@@ -162,7 +162,7 @@
                 </div>
                 <div class="card-style p-4 md:p-8 flex flex-col md:flex-row items-center gap-8">
                     <div class="w-full md:w-1/3">
-                        <img id="upsell-image" src="" alt="Oferta Especial" class="rounded-lg shadow-lg w-full object-contain aspect-square">
+                        <img id="upsell-image" src="" alt="Oferta Especial" class="rounded-lg shadow-lg w-full object-cover aspect-square">
                     </div>
                     <div class="w-full md:w-2/3 text-center md:text-left">
                         <h2 id="upsell-title" class="text-3xl font-bold text-gray-900 mb-4"></h2>
@@ -653,7 +653,7 @@ Estas recetas fueron pensadas para sanar desde la mesa del mediodía, ayudando a
                 img.loading = 'lazy';
                 img.decoding = 'async';
                 img.alt = item.title;
-                img.className = 'w-full h-full object-contain';
+                img.className = 'w-full h-full object-cover';
                 loadImageSmart(img, item.image);
                 cardImageContainer.appendChild(img);
 
@@ -714,11 +714,6 @@ Estas recetas fueron pensadas para sanar desde la mesa del mediodía, ayudando a
                     targetSection.classList.remove('hidden');
                 }
                 currentView = sectionId;
-
-                // This part is removed as navItems is no longer available.
-                // navItems.forEach(item => {
-                //     item.classList.toggle('active', item.dataset.target === sectionId);
-                // });
                 window.scrollTo(0, 0);
             };
 
@@ -808,11 +803,6 @@ Estas recetas fueron pensadas para sanar desde la mesa del mediodía, ayudando a
                     if (!notificationModal.classList.contains('hidden')) closeNotificationModal();
                 }
             });
-
-            // This part is removed as navItems is no longer available.
-            // navItems.forEach(item => {
-            //     item.addEventListener('click', () => showSection(item.dataset.target));
-            // });
 
             // =================================================================================
             // INICIALIZAÇÃO
