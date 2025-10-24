@@ -299,18 +299,15 @@
 
              // Função para inicializar os ícones Lucide de forma segura
             const initializeIcons = () => {
-                if (typeof lucide !== 'undefined') {
-                    console.log("Lucide is defined, creating icons.");
+                if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
                     lucide.createIcons();
                 } else {
-                    console.error("Lucide library not loaded yet! Retrying in 100ms.");
+                    console.warn("Lucide library not loaded yet, trying again in 100ms...");
                     // Tenta novamente após um curto atraso se lucide ainda não estiver disponível
                     setTimeout(initializeIcons, 100);
                 }
             };
-            // Chama a inicialização dos ícones pela primeira vez
-            initializeIcons();
-
+            
             // =================================================================================
             // CONFIGURACIÓN Y DATOS INICIALES
             // =================================================================================
@@ -346,7 +343,21 @@
                     title: 'Panes Medicinales: El Secreto para NO Abandonar la Dieta',
                     image: 'https://kvsbr.github.io/membros/cards/PANES%20MEDICINALES.png',
                     cardStyle: 'light',
-                    description: 'Este módulo reúne mais de 40 recetas de panes saludables, elaborados con harinas naturales, vegetales y semillas que reemplazan el trigo sin perder el sabor ni la textura. Cada receta fue diseñada para lograr panes esponjosos, nutritivos y fáciles de preparar, perfectos para acompañar cualquier comida o disfrutar en el desayuno.\n\nIncluye:\n\nPanes clásicos y caseros, como pan de avena, pan integral, pan de maíz y pan rústico.\n\nVersiones funcionales con ingredientes antiinflamatorios: linaza, almendra, camote, yuca, garbanzos y batata.\n\nPanes especiales para AirFryer, sartén o microondas — ideales para quien busca practicidad diaria.\n\nOpciones dulces y gourmet, como pan de banana, pan de canela, pan brioche y pan australiano.\n\nRecetas creativas como pizza sin gluten, empanadas, focaccia y pastas caseras saludables.\n\nCada receta demuestra que comer sin gluten no es una restricción, sino una liberación, permitiendo disfrutar del pan sin pesadez ni inflamación.',
+                    description: `Este módulo reúne mais de 40 recetas de panes saludables, elaborados con harinas naturales, vegetales y semillas que reemplazan el trigo sin perder el sabor ni la textura. Cada receta fue diseñada para lograr panes esponjosos, nutritivos y fáciles de preparar, perfectos para acompañar cualquier comida o disfrutar en el desayuno.
+
+Incluye:
+
+Panes clásicos y caseros, como pan de avena, pan integral, pan de maíz y pan rústico.
+
+Versiones funcionales con ingredientes antiinflamatorios: linaza, almendra, camote, yuca, garbanzos y batata.
+
+Panes especiales para AirFryer, sartén o microondas — ideales para quien busca practicidad diaria.
+
+Opciones dulces y gourmet, como pan de banana, pan de canela, pan brioche y pan australiano.
+
+Recetas creativas como pizza sin gluten, empanadas, focaccia y pastas caseras saludables.
+
+Cada receta demuestra que comer sin gluten no es una restricción, sino una liberación, permitiendo disfrutar del pan sin pesadez ni inflamación.`,
                     downloadUrl: 'https://kvsbr.github.io/membros/ebooks/PANES%20SIN%20GLUTEN.pdf'
                 },
                 {
@@ -354,7 +365,19 @@
                     title: 'Freidora de Aire: El Antídoto Para Tus Recaídas',
                     image: 'https://kvsbr.github.io/membros/cards/FREIDORA%20DE%20AIRE.png',
                     cardStyle: 'light',
-                    description: 'Este módulo reúne mais de 80 recetas exclusivas para preparar en freidora de aire, combinando practicidad, salud y sabor. Todas las recetas son sin gluten, sin azúcar refinada y bajas en grasas, logrando texturas crujientes y sabrosas sin necesidad de freír en aceite.\n\nIncluye:\n\nEntradas y botanas saludables, como croquetas, nuggets, empanadas, papas sazonadas y chips vegetales.\n\nPlatos principales con pollo, pescado, tofu o verduras, perfectamente dorados sin exceso de grasa.\n\nPanecillos y postres ligeros, como muffins, donas o galletas adaptadas para freidora de aire.\n\nTécnicas paso a paso para ajustar tiempo, temperatura y combinaciones según el tipo de alimento.\n\nEste módulo enseña a cocinar de forma rápida y antiinflamatoria, conservando los nutrientes y el sabor real de los ingredientes — ideal para quienes buscan recetas prácticas en su día a día.',
+                    description: `Este módulo reúne mais de 80 recetas exclusivas para preparar en freidora de aire, combinando practicidad, salud y sabor. Todas las recetas son sin gluten, sin azúcar refinada y bajas en grasas, logrando texturas crujientes y sabrosas sin necesidad de freír en aceite.
+
+Incluye:
+
+Entradas y botanas saludables, como croquetas, nuggets, empanadas, papas sazonadas y chips vegetales.
+
+Platos principales con pollo, pescado, tofu o verduras, perfectamente dorados sin exceso de grasa.
+
+Panecillos y postres ligeros, como muffins, donas o galletas adaptadas para freidora de aire.
+
+Técnicas paso a paso para ajustar tiempo, temperatura y combinaciones según el tipo de alimento.
+
+Este módulo enseña a cocinar de forma rápida y antiinflamatoria, conservando los nutrientes y el sabor real de los ingredientes — ideal para quienes buscan recetas prácticas en su día a dia.`,
                     downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Freir%20Salud%20-%20Recetas%20SIN%20Gluten%20En%20La%20Freidora%20de%20Aire_compressed.pdf'
                 },
                 {
@@ -362,8 +385,30 @@
                     title: 'Sopas que Curan: El Detox que Reinicia tu Cuerpo en 48 Horas',
                     image: 'https://kvsbr.github.io/membros/cards/SOPAS%20QUE%20CURAN.png',
                     cardStyle: 'light',
-                    description: 'Este módulo presenta 10 recetas de sopas curativas junto con una guía educativa sobre cómo usarlas para desinflamar el cuerpo, fortalecer el sistema inmunológico y mejorar la digestión. Combina sabor, nutrición y bienestar en cada cucharada, mostrando cómo los ingredientes naturales pueden sanar desde adentro.\n\nIncluye:\n\nRecetas funcionales como crema de calabaza con coco, sopa de lentejas con cúrcuma, sopa thai con jengibre, y crema de hinojo con acelgas.\n\nExplicación de ingredientes clave (cúrcuma, jengibre, brócoli, ajo, espinaca, coco, limón, almendras, etc.) y sus beneficios antiinflamatorios.\n\nGuía práctica con sustituciones, toppings saludables, consejos de conservación y plan semanal detox.\n\nPlan de 7 días de sopas detox, ideal para depurar el cuerpo, reducir la hinchazón y aumentar la energía.\n\nCada receta es sencilla, deliciosa y con enfoque funcional — perfecta para mujeres que buscan sanar su metabolismo sin dejar de disfrutar el placer de comer.',
+                    description: `Este módulo presenta 10 recetas de sopas curativas junto con una guía educativa sobre cómo usarlas para desinflamar el cuerpo, fortalecer el sistema inmunológico y mejorar la digestión. Combina sabor, nutrición y bienestar en cada cucharada, mostrando cómo los ingredientes naturales pueden sanar desde adentro.
+
+Incluye:
+
+Recetas funcionales como crema de calabaza con coco, sopa de lentejas con cúrcuma, sopa thai con jengibre, y crema de hinojo con acelgas.
+
+Explicación de ingredientes clave (cúrcuma, jengibre, brócoli, ajo, espinaca, coco, limón, almendras, etc.) y sus beneficios antiinflamatorios.
+
+Guía práctica con sustituciones, toppings saludables, consejos de conservación y plan semanal detox.
+
+Plan de 7 días de sopas detox, ideal para depurar el cuerpo, reducir la hinchazón y aumentar la energía.
+
+Cada receta es sencilla, deliciosa y con enfoque funcional — perfecta para mujeres que buscan sanar su metabolismo sin dejar de disfrutar el placer de comer.`,
                     downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sopas%20Detox%20y%20Antiinflamatorias.pdf'
+                },
+                {
+                    type: CONTENT_TYPE.UPSELL_PAGE,
+                    title: 'Oferta: Postres Saludables',
+                    image: 'https://kvsbr.github.io/membros/cards/CENAS%20ANTIINFLAMATORIAS.png',
+                    cardStyle: 'light',
+                    upsellTitle: 'Postres que Sanan',
+                    upsellImage: 'https://kvsbr.github.io/membros/cards/CENAS%20ANTIINFLAMATORIAS.png',
+                    upsellDescription: `Descubre el placer de comer postres deliciosos que cuidan de tu salud. Este libro exclusivo te enseña a preparar dulces sin gluten, sin azúcar y llenos de nutrientes. ¡Ideal para complementar tu estilo de vida saludable!`,
+                    checkoutUrl: '#'
                 }
             ];
 
@@ -375,6 +420,22 @@
                     cardStyle: 'dark',
                     iframeSrc: 'https://mozilla.github.io/pdf.js/web/viewer.html?file=https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%201.pdf',
                     iframeTitle: '7 Tortillas Antiinflamatorias'
+                },
+                {
+                    type: CONTENT_TYPE.MODAL_YOUTUBE,
+                    title: 'Bono: Rutina de Ejercicios',
+                    image: '',
+                    cardStyle: 'light',
+                    description: 'Video exclusivo con una rutina de 15 minutos para hacer en casa.',
+                    youtubeUrl: '#'
+                },
+                 {
+                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
+                    title: 'Bono: Menú Semanal',
+                    image: '',
+                    cardStyle: 'dark',
+                    description: 'Un menú semanal listo para descargar e imprimir.',
+                    downloadUrl: '#'
                 },
             ];
 
@@ -394,7 +455,7 @@ Incluye:
 - Snacks rápidos y quiches sin masa, ideales para meriendas o comidas ligeras.
 
 Cada receta está diseñada para nutrir el cuerpo sin inflamarlo, mantener la saciedad y equilibrar los niveles de energía durante todo el día.`,
-                    downloadUrl: 'https://drive.google.com/uc?export=download&id=148BYuZ8210UgDS_CSzoPODDkTWRb2ssb' // << Link atualizado
+                    downloadUrl: 'https://drive.google.com/uc?export=download&id=148BYuZ8210UgDS_CSzoPODDkTWRb2ssb' // << Link CORRIGIDO
                 },
                 {
                     type: CONTENT_TYPE.MODAL_DOWNLOAD,
@@ -410,7 +471,7 @@ Encontrarás:
 - Pasteles salados, tortillas y quiches con combinaciones creativas de verduras, hierbas y quesos sin lactosa.
 - Recetas al horno y salteados rápidos que conservan los nutrientes y realzan el sabor natural de los alimentos.
 
-Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a equilibrar hormonas, reducir la inflamación y mantener la energía estable durante la tarde.`,
+Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a equilibrar hormonas, reducir la inflamação y mantener la energía estable durante la tarde.`,
                     downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%202.pdf'
                 },
                 {
@@ -418,7 +479,19 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                     title: 'Módulo 3: Dulces Y Postres',
                     image: 'https://kvsbr.github.io/membros/cards/DULCES%20Y%20POSTRES.png',
                     cardStyle: 'light',
-                    description: `Este módulo reúne más de 120 recetas de repostería saludable, todas sin gluten, sin azúcar refinada y sin harinas inflamatorias. Está pensado para quienes desean disfrutar del sabor dulce sin romper su bienestar ni elevar la glucosa.\n\nIncluye:\n\nTortas, pasteles y panqués con harinas naturales como almendra, coco y avena sin gluten.\n\nBrownies, galletas, trufas y bombones elaborados con endulzantes naturales como dátiles, stevia o eritritol.\n\nPostres fríos y cremosos, como mousse de chocolate, cheesecake sin horno y helados sin lácteos.\n\nRecetas con frutas, cacao y especias que activan la saciedad y el equilibrio hormonal.\n\nCada receta busca reconciliar el placer con la salud, demostrando que comer sin azúcar ni gluten puede ser un acto de amor propio.`,
+                    description: `Este módulo reúne más de 120 recetas de repostería saludable, todas sin gluten, sin azúcar refinada y sin harinas inflamatorias. Está pensado para quienes desean disfrutar del sabor dulce sin romper su bienestar ni elevar la glucosa.
+
+Incluye:
+
+Tortas, pasteles y panqués con harinas naturales como almendra, coco y avena sin gluten.
+
+Brownies, galletas, trufas y bombones elaborados con endulzantes naturales como dátiles, stevia o eritritol.
+
+Postres fríos y cremosos, como mousse de chocolate, cheesecake sin horno y helados sin lácteos.
+
+Recetas con frutas, cacao y especias que activan la saciedad y el equilibrio hormonal.
+
+Cada receta busca reconciliar el placer con la salud, demostrando que comer sin azúcar ni gluten puede ser un acto de amor propio.`,
                     downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%203.pdf'
                 },
                 {
@@ -426,7 +499,19 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                     title: 'Módulo 4: Cenas Antiinflamatorias',
                     image: 'https://kvsbr.github.io/membros/cards/CENAS%20ANTIINFLAMATORIAS.png',
                     cardStyle: 'light',
-                    description: `Este módulo reúne más de 150 recetas pensadas para las noches: ligeras, nutritivas y llenas de sabor natural. Todas son sin gluten, sin azúcar y con combinaciones antiinflamatorias que favorecen una buena digestión y un descanso profundo.\n\nIncluye:\n\nPlatos principales con pollo, pescado, carne o tofu, acompañados de verduras o salsas ligeras.\n\nCremas, sopas y gratinados con ingredientes funcionales como calabaza, coliflor, espinaca o jengibre.\n\nEnsaladas completas con proteínas y grasas buenas, ideales para cenas rápidas o ligeras.\n\nPreparaciones al horno y salteados suaves que conservan los nutrientes y evitan pesadez nocturna.\n\nCada receta está diseñada para nutrir sin inflamar, ayudando al cuerpo a regenerarse durante la noche y manteniendo el equilibrio hormonal.`,
+                    description: `Este módulo reúne más de 150 recetas pensadas para las noches: ligeras, nutritivas y llenas de sabor natural. Todas son sin gluten, sin azúcar y con combinaciones antiinflamatorias que favorecen una buena digestión y un descanso profundo.
+
+Incluye:
+
+Platos principales con pollo, pescado, carne o tofu, acompañados de verduras o salsas ligeras.
+
+Cremas, sopas y gratinados con ingredientes funcionales como calabaza, coliflor, espinaca o jengibre.
+
+Ensaladas completas con proteínas y grasas buenas, ideales para cenas rápidas o ligeras.
+
+Preparaciones al horno y salteados suaves que conservan los nutrientes y evitan pesadez nocturna.
+
+Cada receta está diseñada para nutrir sin inflamar, ayudando al cuerpo a regenerarse durante la noche y manteniendo el equilibrio hormonal.`,
                     downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%204.pdf'
                 },
                 {
@@ -434,7 +519,21 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                     title: 'Módulo 5: Salsas y Untables Saludables',
                     image: 'https://kvsbr.github.io/membros/cards/SALSAS%20Y%20UNTABLES%20SALUDABLES.png',
                     cardStyle: 'light',
-                    description: `Este módulo reúne más de 30 recetas de salsas, mayonesas, dips y patés 100 % naturales, ideales para acompañar panes, ensaladas, carnes o snacks. Todas las preparaciones son sin gluten, sin azúcar y con grasas saludables, perfectas para dar sabor sin causar inflamación.\n\nIncluye:\n\nMayonesas funcionales (de aguacate, linaza, o cetogénica casera).\n\nSalsas frescas y aromáticas, como pesto, balsámica, de hierbas, menta o maracuyá.\n\nUntables salados (de pollo, atún, brócoli, pavo o pepino con queso crema).\n\nPatés cremosos y naturales elaborados con vegetales, frutos secos o legumbres.\n\nVersiones dulces y nutritivas, como pasta de avellanas o limón con mantequilla de nuez.\n\nCada receta transforma ingredientes simples en acompañamientos gourmet, aportando sabor, textura y beneficios antiinflamatorios sin procesados ni aditivos.`,
+                    description: `Este módulo reúne más de 30 recetas de salsas, mayonesas, dips y patés 100 % naturales, ideales para acompañar panes, ensaladas, carnes o snacks. Todas las preparaciones son sin gluten, sin azúcar y con grasas saludables, perfectas para dar sabor sin causar inflamación.
+
+Incluye:
+
+Mayonesas funcionales (de aguacate, linaza, o cetogénica casera).
+
+Salsas frescas y aromáticas, como pesto, balsámica, de hierbas, menta o maracuyá.
+
+Untables salados (de pollo, atún, brócoli, pavo o pepino con queso crema).
+
+Patés cremosos y naturales elaborados con vegetales, frutos secos o legumbres.
+
+Versiones dulces y nutritivas, como pasta de avellanas o limón con mantequilla de nuez.
+
+Cada receta transforma ingredientes simples en acompañamientos gourmet, aportando sabor, textura y beneficios antiinflamatorios sin procesados ni aditivos.`,
                     downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%205.pdf'
                 },
                 {
@@ -442,7 +541,19 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                     title: 'Módulo 6: Harinas y Leches Vegetales',
                     image: 'https://kvsbr.github.io/membros/cards/HARINAS%20Y%20LECHES%20VEGETALES.png',
                     cardStyle: 'light',
-                    description: `Este módulo enseña cómo preparar harinas y leches naturales, funcionales y sin procesar, ideales para una alimentación antiinflamatoria y libre de gluten. Son bases esenciales para crear panes, postres, batidos y recetas saludables en casa.\n\nIncluye:\n\nHarinas naturales elaboradas a partir de maní, coco, linaza, berenjena, pollo, maracuyá, calabaza y girasol.\n\nLeches vegetales caseras de maní, anacardos (nuez de la India), coco, sésamo y agua de coco.\n\nProcesos detallados para obtener texturas finas y sabores frescos, sin aditivos ni conservantes.\n\nConsejos de almacenamiento y conservación para mantener la calidad nutricional.\n\nEstas recetas permiten reemplazar productos industriales con alternativas más saludables, ricas en fibra, proteína y grasas buenas, fortaleciendo la salud intestinal y reduciendo la inflamación.`,
+                    description: `Este módulo enseña cómo preparar harinas y leches naturales, funcionales y sin procesar, ideales para una alimentación antiinflamatoria y libre de gluten. Son bases esenciales para crear panes, postres, batidos y recetas saludables en casa.
+
+Incluye:
+
+Harinas naturales elaboradas a partir de maní, coco, linaza, berenjena, pollo, maracuyá, calabaza y girasol.
+
+Leches vegetales caseras de maní, anacardos (nuez de la India), coco, sésamo y agua de coco.
+
+Procesos detallados para obtener texturas finas y sabores frescos, sin aditivos ni conservantes.
+
+Consejos de almacenamiento y conservación para mantener la calidad nutricional.
+
+Estas recetas permiten reemplazar productos industriales con alternativas más saludables, ricas en fibra, proteína y grasas buenas, fortaleciendo la salud intestinal y reduciendo la inflamación.`,
                     downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%206.pdf'
                 },
                 {
@@ -450,7 +561,21 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                     title: 'Módulo 7: Bebidas Funcionales y Refrescantes',
                     image: 'https://kvsbr.github.io/membros/cards/BEBIDAS%20FUNCIONALES%20Y%20REFRESCANTES.png',
                     cardStyle: 'light',
-                    description: `Este módulo reúne más de 50 recetas de bebidas naturales, diseñadas para hidratar, desintoxicar y revitalizar el cuerpo sin azúcar ni lácteos. Todas están elaboradas con ingredientes funcionales como frutas, hierbas, especias y semillas que promovem equilíbrio hormonal, digestión ligera y energía sostenida.\n\nIncluye:\n\nInfusiones y tés terapéuticos (manzanilla, jengibre, hibisco, carqueja, graviola, diente de león, entre otros).\n\nBebidas detox y antioxidantes, ideales para reducir la inflamación y depurar el organismo.\n\nJugos naturales y vitaminas con combinaciones creativas de frutas, verduras y superalimentos.\n\nBatidos energéticos y bebidas funcionales, como isotónicos caseros, licuados de coco, açaí y aguacate.\n\nOpciones calientes y frías, adaptables a cualquier momento del día o estación del año.\n\nCada receta está pensada para reemplazar bebidas industrializadas por alternativas deliciosas, antiinflamatorias y llenas de vida.`,
+                    description: `Este módulo reúne más de 50 recetas de bebidas naturales, diseñadas para hidratar, desintoxicar y revitalizar el cuerpo sin azúcar ni lácteos. Todas están elaboradas con ingredientes funcionales como frutas, hierbas, especias y semillas que promovem equilíbrio hormonal, digestión ligera y energía sostenida.
+
+Incluye:
+
+Infusiones y tés terapéuticos (manzanilla, jengibre, hibisco, carqueja, graviola, diente de león, entre otros).
+
+Bebidas detox y antioxidantes, ideales para reducir la inflamación y depurar el organismo.
+
+Jugos naturales y vitaminas con combinaciones creativas de frutas, verduras y superalimentos.
+
+Batidos energéticos y bebidas funcionales, como isotónicos caseros, licuados de coco, açaí y aguacate.
+
+Opciones calientes y frías, adaptables a cualquier momento del día o estación del año.
+
+Cada receta está pensada para reemplazar bebidas industrializadas por alternativas deliciosas, antiinflamatorias y llenas de vida.`,
                     downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%207.pdf'
                 }
             ];
@@ -534,6 +659,7 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                 
                 bannerSlides.innerHTML = '';
                 bannerDotsContainer.innerHTML = '';
+
 
                 BANNERS.forEach((banner, index) => {
                     const slide = document.createElement('div');
@@ -688,7 +814,7 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                     upsellIcon.setAttribute('data-lucide', 'lock');
                     upsellIcon.className = 'w-12 h-12 text-white opacity-90 drop-shadow-lg';
                     upsellOverlay.appendChild(upsellIcon);
-                    cardImageContainer.appendChild(upsellOverlay);
+                    cardImageContainer.appendChild(upsellOverlay); // Corrigido
                 }
 
                 card.appendChild(cardImageContainer);
@@ -713,9 +839,7 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                     });
                     gridElement.appendChild(card);
                 });
-                if (typeof lucide !== 'undefined') { // Check if lucide exists before calling
-                     lucide.createIcons();
-                }
+                initializeIcons(); // Chamar aqui para renderizar ícones como o de cadeado
             };
 
             // =================================================================================
@@ -775,7 +899,10 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                     loadImageSmart(modalDownloadImage, item.image);
                     modalDownloadDescriptionText.textContent = item.description || `Haz clic en el botón de abajo para descargar "${item.title}".`;
                     
+                    const safeFilenameFallback = (item.title || 'download').replace(/[^a-z0-9_\-\s\.]/gi, '_').replace(/\.+$/, '') + '.pdf';
                     modalDownloadButtonFallback.href = item.downloadUrl || '#';
+                    modalDownloadButtonFallback.setAttribute('download', safeFilenameFallback);
+
                     modalDownloadButtonJS.dataset.url = item.downloadUrl || '#';
                     modalDownloadButtonJS.dataset.title = item.title || 'archivo';
                     
@@ -785,7 +912,7 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                     if(buttonLoading) buttonLoading.classList.add('hidden');
                     modalDownloadButtonJS.disabled = false;
 
-                     if (typeof lucide !== 'undefined') { lucide.createIcons();}
+                     initializeIcons(); // Chamar para renderizar o ícone de download no botão
                 }
 
                 modal.classList.remove('hidden');
@@ -823,28 +950,68 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                 const safeFilename = (filename || 'download').replace(/[^a-z0-9_\-\s\.]/gi, '_') + '.pdf';
 
                 try {
+                    console.log(`Tentando baixar via Fetch: ${url}`);
                     const response = await fetch(url);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    console.log("Fetch bem-sucedido, criando Blob.");
                     const blob = await response.blob();
+
+                    if (window.showSaveFilePicker) {
+                         console.log("Tentando via showSaveFilePicker...");
+                         try {
+                            const handle = await window.showSaveFilePicker({
+                                suggestedName: safeFilename,
+                                types: [{ description: 'PDF Document', accept: {'application/pdf': ['.pdf']} }],
+                            });
+                            const writable = await handle.createWritable();
+                            await writable.write(blob);
+                            await writable.close();
+                            showToast('¡Descarga completada!');
+                            if (buttonText) buttonText.classList.remove('hidden');
+                            if (buttonLoading) buttonLoading.classList.add('hidden');
+                            buttonElement.disabled = false;
+                            return; 
+                        } catch (err) {
+                            if (err.name !== 'AbortError') {
+                                console.warn("showSaveFilePicker falhou, tentando método tradicional.", err);
+                            } else {
+                                console.log("Download cancelado pelo usuário.");
+                                if (buttonText) buttonText.classList.remove('hidden');
+                                if (buttonLoading) buttonLoading.classList.add('hidden');
+                                buttonElement.disabled = false;
+                                return; 
+                            }
+                        }
+                    }
+
+                    console.log("showSaveFilePicker não disponível/falhou. Tentando via link <a>.");
                     const link = document.createElement('a');
                     link.href = window.URL.createObjectURL(blob);
-                    link.download = safeFilename;
+                    link.download = safeFilename; 
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
                     window.URL.revokeObjectURL(link.href);
-                    showToast('¡Descarga iniciada!');
+                    showToast('Intentando iniciar descarga...');
+
                 } catch (error) {
-                    console.error('Error al descargar con JS:', error);
-                    showToast('Error al iniciar la descarga. Intentando abrir enlace...');
+                    console.error('Fetch falhou, recorrendo ao fallback do link <a>:', error);
+                    showToast('Error al descargar. Intentando abrir enlace...');
                      if (modalDownloadButtonFallback) {
                         modalDownloadButtonFallback.setAttribute('download', safeFilename);
+                        modalDownloadButtonFallback.href = url; // Garante que o href está atualizado
                         modalDownloadButtonFallback.click();
+                     } else {
+                         showToast('Error fatal: No se pudo iniciar la descarga.');
                      }
+
                 } finally {
-                    if (buttonText) buttonText.classList.remove('hidden');
-                    if (buttonLoading) buttonLoading.classList.add('hidden');
-                    buttonElement.disabled = false;
+                    setTimeout(() => {
+                        if (buttonText) buttonText.classList.remove('hidden');
+                        if (buttonLoading) buttonLoading.classList.add('hidden');
+                        buttonElement.disabled = false;
+                    }, 500);
                 }
             };
             
@@ -861,7 +1028,7 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                     const url = event.currentTarget.dataset.url;
                     const title = event.currentTarget.dataset.title;
                     if (url && url !== '#') {
-                        downloadFileWithJS(url, title, event.currentTarget);
+                        downloadFileWithJS(url, title, event.currentTarget); // Passa o título como nome do arquivo
                     } else {
                         showToast('Enlace de descarga no configurado.');
                     }
@@ -903,6 +1070,7 @@ Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a 
                 initializeIcons(); // Chamada final para garantir que tudo seja renderizado
             };
 
+            // Inicia o aplicativo
             initApp();
         });
     </script>
