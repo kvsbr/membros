@@ -253,14 +253,11 @@
                     <div id="modal-download-description-section" class="card-style p-4 text-gray-700 leading-relaxed text-left">
                         <p id="modal-download-description-text" class="text-base whitespace-pre-wrap"></p>
                     </div>
-                    <!-- Botão de download atualizado -->
-                    <button id="modal-download-button-js" data-url="#" data-title="#" class="inline-block w-full mt-4 bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md">
+                    <!-- Botão de download SIMPLIFICADO -->
+                    <a id="modal-download-button" href="#" download target="_blank" class="inline-block w-full mt-4 bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md">
                         <i data-lucide="download" class="inline-block w-5 h-5 mr-2"></i>
-                        <span class="button-text">Descargar Ahora</span>
-                        <span class="button-loading hidden animate-spin inline-block w-5 h-5 mr-2 border-2 border-white border-t-transparent rounded-full"></span>
-                    </button>
-                    <!-- Link original escondido, pode ser usado como fallback se JS falhar -->
-                    <a id="modal-download-button-fallback" href="#" download target="_blank" class="hidden">Fallback Download</a>
+                        Descargar Ahora
+                    </a>
                 </div>
             </div>
             <!-- Botões opcionais, se aplicável -->
@@ -426,7 +423,7 @@ Cada receta es sencilla, deliciosa y con enfoque funcional — perfecta para muj
                     title: 'Bono: Rutina de Ejercicios',
                     image: '',
                     cardStyle: 'light',
-                    description: 'Video exclusivo con una rutina de 15 minutos para hacer en casa.',
+                    description: `Video exclusivo con una rutina de 15 minutos para hacer en casa.`,
                     youtubeUrl: '#'
                 },
                  {
@@ -434,7 +431,7 @@ Cada receta es sencilla, deliciosa y con enfoque funcional — perfecta para muj
                     title: 'Bono: Menú Semanal',
                     image: '',
                     cardStyle: 'dark',
-                    description: 'Un menú semanal listo para descargar e imprimir.',
+                    description: `Un menú semanal listo para descargar e imprimir.`,
                     downloadUrl: '#'
                 },
             ];
@@ -629,8 +626,7 @@ Cada receta está pensada para reemplazar bebidas industrializadas por alternati
             const modalDownloadDetails = document.getElementById('modal-download-details');
             const modalDownloadImage = document.getElementById('modal-download-image');
             const modalDownloadDescriptionText = document.getElementById('modal-download-description-text');
-            const modalDownloadButtonJS = document.getElementById('modal-download-button-js'); // Novo ID para o botão JS
-            const modalDownloadButtonFallback = document.getElementById('modal-download-button-fallback'); // Link de fallback
+            const modalDownloadButton = document.getElementById('modal-download-button'); // ID do botão/link de download unificado
 
             const notificationButton = document.getElementById('notification-button');
             const notificationModal = document.getElementById('notification-modal');
@@ -894,25 +890,19 @@ Cada receta está pensada para reemplazar bebidas industrializadas por alternati
                 } else if (item.type === CONTENT_TYPE.MODAL_YOUTUBE && iframePlayer && modalIframe) {
                     iframePlayer.classList.remove('hidden');
                     modalIframe.src = convertToEmbedUrl(item.youtubeUrl);
-                } else if (item.type === CONTENT_TYPE.MODAL_DOWNLOAD && modalDownloadDetails && modalDownloadImage && modalDownloadDescriptionText && modalDownloadButtonFallback && modalDownloadButtonJS) {
+                } else if (item.type === CONTENT_TYPE.MODAL_DOWNLOAD && modalDownloadDetails && modalDownloadImage && modalDownloadDescriptionText && modalDownloadButton) {
                     modalDownloadDetails.classList.remove('hidden');
                     loadImageSmart(modalDownloadImage, item.image);
                     modalDownloadDescriptionText.textContent = item.description || `Haz clic en el botón de abajo para descargar "${item.title}".`;
                     
-                    const safeFilenameFallback = (item.title || 'download').replace(/[^a-z0-9_\-\s\.]/gi, '_').replace(/\.+$/, '') + '.pdf';
-                    modalDownloadButtonFallback.href = item.downloadUrl || '#';
-                    modalDownloadButtonFallback.setAttribute('download', safeFilenameFallback);
-
-                    modalDownloadButtonJS.dataset.url = item.downloadUrl || '#';
-                    modalDownloadButtonJS.dataset.title = item.title || 'archivo';
+                    // Limpa o nome do arquivo para usar no atributo 'download'
+                    const safeFilename = (item.title || 'download').replace(/[^a-z0-9_\-\s\.]/gi, '_').replace(/\.+$/, '') + '.pdf';
                     
-                    const buttonText = modalDownloadButtonJS.querySelector('.button-text');
-                    const buttonLoading = modalDownloadButtonJS.querySelector('.button-loading');
-                    if(buttonText) buttonText.classList.remove('hidden');
-                    if(buttonLoading) buttonLoading.classList.add('hidden');
-                    modalDownloadButtonJS.disabled = false;
-
-                     initializeIcons(); // Chamar para renderizar o ícone de download no botão
+                    // Configura o link de download
+                    modalDownloadButton.href = item.downloadUrl || '#';
+                    modalDownloadButton.setAttribute('download', safeFilename);
+                    
+                    initializeIcons(); // Chamar para renderizar o ícone de download no botão
                 }
 
                 modal.classList.remove('hidden');
@@ -937,83 +927,6 @@ Cada receta está pensada para reemplazar bebidas industrializadas por alternati
                     notificationModal.classList.remove('flex');
                  }
             };
-
-            const downloadFileWithJS = async (url, filename, buttonElement) => {
-                 if (!buttonElement) return;
-                const buttonText = buttonElement.querySelector('.button-text');
-                const buttonLoading = buttonElement.querySelector('.button-loading');
-
-                if (buttonText) buttonText.classList.add('hidden');
-                if (buttonLoading) buttonLoading.classList.remove('hidden');
-                buttonElement.disabled = true;
-
-                const safeFilename = (filename || 'download').replace(/[^a-z0-9_\-\s\.]/gi, '_') + '.pdf';
-
-                try {
-                    console.log(`Tentando baixar via Fetch: ${url}`);
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    
-                    console.log("Fetch bem-sucedido, criando Blob.");
-                    const blob = await response.blob();
-
-                    if (window.showSaveFilePicker) {
-                         console.log("Tentando via showSaveFilePicker...");
-                         try {
-                            const handle = await window.showSaveFilePicker({
-                                suggestedName: safeFilename,
-                                types: [{ description: 'PDF Document', accept: {'application/pdf': ['.pdf']} }],
-                            });
-                            const writable = await handle.createWritable();
-                            await writable.write(blob);
-                            await writable.close();
-                            showToast('¡Descarga completada!');
-                            if (buttonText) buttonText.classList.remove('hidden');
-                            if (buttonLoading) buttonLoading.classList.add('hidden');
-                            buttonElement.disabled = false;
-                            return; 
-                        } catch (err) {
-                            if (err.name !== 'AbortError') {
-                                console.warn("showSaveFilePicker falhou, tentando método tradicional.", err);
-                            } else {
-                                console.log("Download cancelado pelo usuário.");
-                                if (buttonText) buttonText.classList.remove('hidden');
-                                if (buttonLoading) buttonLoading.classList.add('hidden');
-                                buttonElement.disabled = false;
-                                return; 
-                            }
-                        }
-                    }
-
-                    console.log("showSaveFilePicker não disponível/falhou. Tentando via link <a>.");
-                    const link = document.createElement('a');
-                    link.href = window.URL.createObjectURL(blob);
-                    link.download = safeFilename; 
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(link.href);
-                    showToast('Intentando iniciar descarga...');
-
-                } catch (error) {
-                    console.error('Fetch falhou, recorrendo ao fallback do link <a>:', error);
-                    showToast('Error al descargar. Intentando abrir enlace...');
-                     if (modalDownloadButtonFallback) {
-                        modalDownloadButtonFallback.setAttribute('download', safeFilename);
-                        modalDownloadButtonFallback.href = url; // Garante que o href está atualizado
-                        modalDownloadButtonFallback.click();
-                     } else {
-                         showToast('Error fatal: No se pudo iniciar la descarga.');
-                     }
-
-                } finally {
-                    setTimeout(() => {
-                        if (buttonText) buttonText.classList.remove('hidden');
-                        if (buttonLoading) buttonLoading.classList.add('hidden');
-                        buttonElement.disabled = false;
-                    }, 500);
-                }
-            };
             
             // =================================================================================
             // EVENT LISTENERS (Add checks for element existence)
@@ -1023,17 +936,8 @@ Cada receta está pensada para reemplazar bebidas industrializadas por alternati
             if(modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
             if(closeNotificationModalBtn) closeNotificationModalBtn.addEventListener('click', closeNotificationModal);
 
-             if (modalDownloadButtonJS) {
-                modalDownloadButtonJS.addEventListener('click', (event) => {
-                    const url = event.currentTarget.dataset.url;
-                    const title = event.currentTarget.dataset.title;
-                    if (url && url !== '#') {
-                        downloadFileWithJS(url, title, event.currentTarget); // Passa o título como nome do arquivo
-                    } else {
-                        showToast('Enlace de descarga no configurado.');
-                    }
-                });
-            }
+            // Remover o listener de download complexo, pois agora é um link direto
+             // if (modalDownloadButtonJS) { ... }
 
             if (notificationButton) {
                 notificationButton.addEventListener('click', () => {
