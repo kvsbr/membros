@@ -868,7 +868,7 @@ Cada receta está pensada para reemplazar bebidas industrializadas por alternati
                 if (modalVideo) { modalVideo.pause(); modalVideo.src = '';}
 
                 if (item.type === CONTENT_TYPE.MODAL_IFRAME && iframePlayer && modalIframe) {
-                    iframePlayer.classList.remove('hidden');
+                    iframePlayer.className = 'iframe-container';
                     modalIframe.src = item.iframeSrc;
                 } else if (item.type === CONTENT_TYPE.MODAL_YOUTUBE && iframePlayer && modalIframe) {
                     iframePlayer.classList.remove('hidden');
