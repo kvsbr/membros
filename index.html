@@ -864,14 +864,19 @@ Cada receta está pensada para reemplazar bebidas industrializadas por alternati
                      if (el) el.classList.add('hidden');
                 });
                 
-                if (modalIframe) modalIframe.src = '';
+                if (modalIframe) {
+                    modalIframe.src = '';
+                    iframePlayer.className = 'hidden'; // Reseta as classes do container do iframe
+                }
                 if (modalVideo) { modalVideo.pause(); modalVideo.src = '';}
+                if (videoPlayer) videoPlayer.className = 'player-container hidden'; // Reseta o container do vídeo
 
                 if (item.type === CONTENT_TYPE.MODAL_IFRAME && iframePlayer && modalIframe) {
                     iframePlayer.className = 'iframe-container'; // Usa a classe para PDF/Web
                     iframePlayer.classList.remove('hidden');
                     modalIframe.src = item.iframeSrc;
                 } else if (item.type === CONTENT_TYPE.MODAL_YOUTUBE && iframePlayer && modalIframe) {
+                    iframePlayer.className = 'player-container'; // Usa a classe para Vídeo
                     iframePlayer.classList.remove('hidden');
                     modalIframe.src = convertToEmbedUrl(item.youtubeUrl);
                 } else if (item.type === CONTENT_TYPE.MODAL_DOWNLOAD && modalDownloadDetails && modalDownloadImage && modalDownloadDescriptionText && modalDownloadButton) {
