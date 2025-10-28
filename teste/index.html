@@ -1,1011 +1,135 @@
 <!DOCTYPE html>
-<html lang="es-MX">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sanar con Sabor</title>
-    <!-- Carrega Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Carrega a fonte Inter do Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Ícones Lucide para uma aparência moderna -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>Adios Gluten</title>
+    <link rel="stylesheet" href="23y.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        /* Estilos personalizados para sobrescrever ou adicionar ao Tailwind, se necessário */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* Cor de fundo suave */
-        }
-        /* Efeito de sombra suave e cantos arredondados para cartões */
-        .card-style {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
-        }
-        .modal-overlay {
-            background: rgba(0, 0, 0, 0.7);
-        }
-        .modal-container {
-            max-height: 90vh; /* Para garantir que o modal não ocupe 100% da altura em desktop */
-        }
-        
-        /* Estilos para o player de VÍDEO (16:9) */
-        .player-container {
+        /* Estilização do container de vídeo */
+        .video-container {
+            max-width: 662px;
+            margin: auto;
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
+            border-radius: 10px;
             overflow: hidden;
-            background-color: #000;
-            border-radius: 8px;
-            width: 100%;
         }
-        .player-container iframe,
-        .player-container video {
+
+        /* Box vermelho sobre o vídeo (MENOR) */
+        .overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-
-        /* Estilo para container de IFRAME (PDFs, páginas web) */
-        .iframe-container {
-            position: relative;
-            width: 100%;
-            height: 75vh; /* Altura maior, 75% da tela */
-            overflow: hidden;
-            background-color: #eee;
-            border-radius: 8px;
-        }
-        .iframe-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-
-
-        /* Classes para simular um clique */
-        .clickable-card {
+            top: 50%;
+            left: 50%;
+            width: 300px; /* Reduzi para um tamanho menor */
+            height: 150px; /* Ajustei para melhor proporção */
+            background: rgba(185, 2, 2, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 10px;
+            border: 2px solid white;
             cursor: pointer;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        .clickable-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.12);
+            animation: pulse 1.5s infinite alternate;
+            transform: translate(-50%, -50%); /* Centraliza o box */
         }
 
-        /* Mobile-first adjustments for modal */
-        @media (max-width: 768px) {
-            .modal-container {
-                width: 100%;
-                height: 100%;
-                max-width: 100%;
-                max-height: 100%;
-                border-radius: 0;
-                padding: 16px;
-                /* O fundo preto foi removido para manter a consistência com o desktop */
-            }
-            
-            .iframe-container {
-                 height: 80vh; /* Ocupa mais tela no mobile */
-            }
+        /* Ícone de som */
+        .overlay img {
+            width: 40px;
+            height: 40px;
+            margin: 5px 0;
         }
 
-        /* Esconder o scrollbar em navegadores Webkit */
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+        /* Efeito de pulsação */
+        @keyframes pulse {
+            from {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 0.8;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col">
+<body style="background-color:#f6f6f6; text-align: center;">
+    
+    <div id="top-stop" style="font-size: 17px; background-color: #cf0101; color: white; font-weight: bold; padding: 10px 0;">
+        ¡No cierres ni actualices esta página! <br> [TU COMPRA PODRÍA PERDERSE]
+    </div>
+    
+    <div style="margin: 20px auto 10px;">
+        <img width="300" height="126" src="atention.png" alt="">
+    </div>
+    
+    <div class="video-container">
+        <video id="video" autoplay muted playsinline style="width: 100%;"></video>
 
-    <!-- Conteúdo Principal do Aplicativo -->
-    <div id="app-content" class="flex-grow flex flex-col">
-        <!-- Cabeçalho Superior -->
-        <header class="bg-white shadow-sm py-4 px-4 flex items-center justify-between sticky top-0 z-40">
-            <h1 class="text-xl md:text-2xl font-bold text-gray-800">Sanar con Sabor</h1>
-            <div class="flex items-center space-x-4">
-                <button id="notification-button" class="relative p-2 rounded-full hover:bg-gray-100 transition-colors">
-                    <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
-                    <span class="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
-                </button>
-            </div>
-        </header>
-
-        <!-- Seções do Aplicativo -->
-        <main class="flex-grow p-4 md:p-6 overflow-y-auto hide-scrollbar">
-            <!-- Seção do Painel Principal -->
-            <section id="dashboard-section" class="main-container space-y-6">
-                <!-- Carrossel de Banners -->
-                <div id="banner-carousel" class="relative w-full aspect-video md:max-h-[450px] lg:max-h-[500px] rounded-xl overflow-hidden shadow-lg">
-                    <div id="banner-slides" class="flex transition-transform duration-500 ease-in-out h-full">
-                        <!-- Slides serão inseridos aqui pelo JS -->
-                    </div>
-                    <button id="prev-banner" class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black bg-opacity-40 text-white p-2 rounded-full hover:bg-opacity-60 transition-colors z-10">
-                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
-                    </button>
-                    <button id="next-banner" class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black bg-opacity-40 text-white p-2 rounded-full hover:bg-opacity-60 transition-colors z-10">
-                        <i data-lucide="chevron-right" class="w-6 h-6"></i>
-                    </button>
-                    <div id="banner-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
-                        <!-- Dots serão inseridos aqui pelo JS -->
-                    </div>
-                </div>
-
-                <!-- Seção Mis Libros -->
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4 mt-8">Mis Libros</h2>
-                <div id="libros-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <!-- Cards dos livros serão inseridos aqui -->
-                </div>
-
-                <!-- Seção Bonos Especiales -->
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4 mt-8">Bonos Especiales</h2>
-                <div id="bonos-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <!-- Cards dos bônus serão inseridos aqui -->
-                </div>
-            </section>
-
-            <!-- Seção de Módulo/Categoria (Subpágina) -->
-            <section id="subpage-section" class="main-container space-y-6 hidden">
-                <div class="flex items-center mb-6">
-                    <button id="back-to-dashboard" class="flex items-center text-green-700 hover:text-green-800 font-semibold text-lg transition-colors p-2 -ml-2 rounded-lg">
-                        <i data-lucide="arrow-left" class="w-6 h-6 mr-2"></i> Volver
-                    </button>
-                    <h2 id="subpage-title" class="text-2xl font-bold text-gray-800 ml-4"></h2>
-                </div>
-                <div id="subpage-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <!-- Os cartões da subpágina serão inseridos aqui -->
-                </div>
-            </section>
-            
-            <!-- Seção de Oferta (Upsell) -->
-            <section id="upsell-page-section" class="main-container hidden space-y-6">
-                <div class="flex items-center mb-6">
-                    <button id="back-to-dashboard-from-upsell" class="flex items-center text-green-700 hover:text-green-800 font-semibold text-lg transition-colors p-2 -ml-2 rounded-lg">
-                        <i data-lucide="arrow-left" class="w-6 h-6 mr-2"></i> Volver
-                    </button>
-                </div>
-                <div class="card-style p-4 md:p-8 flex flex-col md:flex-row items-center gap-8">
-                    <div class="w-full md:w-1/3">
-                        <img id="upsell-image" src="" alt="Oferta Especial" class="rounded-lg shadow-lg w-full object-cover object-top aspect-square">
-                    </div>
-                    <div class="w-full md:w-2/3 text-center md:text-left">
-                        <h2 id="upsell-title" class="text-3xl font-bold text-gray-900 mb-4"></h2>
-                        <p id="upsell-description" class="text-gray-600 mb-8 leading-relaxed"></p>
-                        <a id="upsell-checkout-button" href="#" target="_blank" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-8 rounded-lg transition-colors shadow-md text-lg">
-                            ¡Lo Quiero Ahora!
-                        </a>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Seção Feed (Placeholder) -->
-            <section id="feed-section" class="main-container hidden space-y-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Novedades y Actualizaciones</h2>
-                <div class="card-style p-6 text-center text-gray-600">
-                    <p>Esta es la sección de Feed. ¡Mantente atento a nuevas publicaciones!</p>
-                    <i data-lucide="newspaper" class="w-12 h-12 text-gray-400 mx-auto mt-4"></i>
-                </div>
-            </section>
-
-            <!-- Seção Comunidade (Placeholder) -->
-            <section id="community-section" class="main-container hidden space-y-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Comunidad</h2>
-                <div class="card-style p-6 text-center text-gray-600">
-                    <p>¡Bienvenida a la comunidad! Conéctate con otros miembros.</p>
-                    <i data-lucide="users" class="w-12 h-12 text-gray-400 mx-auto mt-4"></i>
-                </div>
-            </section>
-
-            <!-- Seção Perfil -->
-            <section id="profile-section" class="main-container hidden space-y-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Mi Perfil</h2>
-                <div class="card-style p-6 flex flex-col items-center space-y-4">
-                    <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-5xl font-bold">
-                        <i data-lucide="user" class="w-16 h-16"></i>
-                    </div>
-                    <p class="text-xl font-semibold text-gray-900" id="profile-user-name">Miembro</p>
-                </div>
-                <div class="card-style p-6 space-y-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Configuración de la Cuenta</h3>
-                    <p class="text-gray-600">Opciones de configuración en desarrollo.</p>
-                </div>
-                <div class="card-style p-6 space-y-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Progreso</h3>
-                    <p class="text-gray-600">¡Seguimiento del progreso próximamente!</p>
-                </div>
-                <div class="card-style p-6 space-y-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Soporte</h3>
-                    <p class="text-gray-600">¿Necesitas ayuda? <a href="#" class="text-green-700 hover:underline">Contacta con nosotros</a>.</p>
-                </div>
-            </section>
-        </main>
-    </div> <!-- Fim do app-content -->
-
-    <!-- Modal para Conteúdo (Vídeos, iframes, Receitas Detalhadas) -->
-    <div id="content-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <div class="modal-container card-style p-4 md:p-8 w-full md:max-w-3xl lg:max-w-5xl relative flex flex-col">
-            <header class="modal-header flex justify-between items-center pb-3 border-b border-gray-200 mb-4 md:mb-6">
-                <h3 id="modal-title" class="modal-title text-xl md:text-2xl font-bold text-gray-900"></h3>
-                <button id="modal-close-btn" class="modal-close-btn p-2 rounded-full hover:bg-gray-100 transition-colors" aria-label="Cerrar modal">
-                    <i data-lucide="x" class="w-6 h-6 text-gray-600"></i>
-                </button>
-            </header>
-            <div class="modal-body flex-grow overflow-y-auto hide-scrollbar space-y-4">
-                <!-- Player de Iframe/YouTube/PDF -->
-                <div id="iframe-player" class="hidden"> <!-- Classe (player-container ou iframe-container) será adicionada via JS -->
-                    <iframe
-                        id="modal-iframe"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerpolicy="no-referrer"
-                        allowfullscreen
-                    ></iframe>
-                </div>
-                <!-- Player de Vídeo MP4 -->
-                <div id="video-player" class="player-container hidden">
-                    <video id="modal-video" controls autoplay playsinline class="w-full h-full"></video>
-                </div>
-                <!-- Descrição, Ingredientes, Modo de Preparo -->
-                <div id="modal-recipe-details" class="space-y-4 hidden">
-                    <div id="modal-description-section" class="modal-description-section card-style p-4 text-gray-700 leading-relaxed hidden">
-                        <p class="text-lg font-medium mb-2">Descripción:</p>
-                        <p id="modal-description-text" class="text-sm whitespace-pre-wrap"></p>
-                    </div>
-
-                    <div id="modal-ingredients-section" class="modal-description-section card-style p-4 text-gray-700 leading-relaxed hidden">
-                        <h4 class="text-lg font-medium mb-2">Ingredientes:</h4>
-                        <ul id="modal-ingredients" class="list-disc list-inside text-sm space-y-1"></ul>
-                    </div>
-
-                    <div id="modal-preparation-section" class="modal-description-section card-style p-4 text-gray-700 leading-relaxed hidden">
-                        <h4 class="text-lg font-medium mb-2">Modo de Preparación:</h4>
-                        <ol id="modal-preparation" class="list-decimal list-inside text-sm space-y-1"></ol>
-                    </div>
-                </div>
-                <!-- Detalhes para Download -->
-                <div id="modal-download-details" class="space-y-4 hidden text-center">
-                    <img id="modal-download-image" src="" alt="Imagen del Producto" class="w-full max-w-sm mx-auto rounded-lg shadow-md mb-4">
-                    <div id="modal-download-description-section" class="card-style p-4 text-gray-700 leading-relaxed text-left">
-                        <p id="modal-download-description-text" class="text-base whitespace-pre-wrap"></p>
-                    </div>
-                    <!-- Botão de download SIMPLIFICADO -->
-                    <a id="modal-download-button" href="#" download target="_blank" class="inline-block w-full mt-4 bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md">
-                        <i data-lucide="download" class="inline-block w-5 h-5 mr-2"></i>
-                        Descargar Ahora
-                    </a>
-                </div>
-            </div>
-            <!-- Botões opcionais, se aplicável -->
-            <div id="modal-action-buttons" class="mt-4 pt-4 border-t border-gray-200 flex justify-end space-x-2 hidden">
-                <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Marcar como Completado</button>
-                <button class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Añadir a Favoritos</button>
-            </div>
+        <div class="overlay" id="overlay" onclick="restartVideo()">
+            <span>Tu vídeo ya ha comenzado</span>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/21/Speaker_Icon.svg" alt="Som Desativado">
+            <span>Haga clic para escuchar</span>
         </div>
     </div>
+    
+    <h4 style="margin:0px;"><span style="color:#C00; font-size:1.1em;" id="num-persons"></span> la gente está mirando</h4>
+    
 
-    <!-- Modal de Notificação -->
-    <div id="notification-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 z-[60] hidden" role="dialog" aria-modal="true">
-        <div class="modal-container card-style p-6 w-full max-w-md text-center">
-            <div class="flex justify-center mb-4">
-                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                    <i data-lucide="party-popper" class="w-10 h-10 text-green-600"></i>
-                </div>
-            </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-3">¡Bienvenida a la Comunidad!</h3>
-            <p class="text-gray-600 mb-6">Estamos muy contentos de tenerte aquí en <strong>Sanar con Sabor</strong>. ¡Explora, aprende y disfruta de tu camino hacia una vida más saludable!</p>
-            <button id="close-notification-modal" class="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-2 px-5 rounded-lg transition-colors">
-                ¡Entendido!
-            </button>
-        </div>
+    <div id="delayed-button-container" style="display:none; max-width: 600px; margin: 30px auto 40px auto; padding: 0 15px;">
+        <a href="httpsES_SU_LINK_DE_PAGO_AQUI" class="button green block" style="font-size: 22px; padding: 15px; line-height: 1.5; font-weight: bold;">
+            ¡SÍ, QUIERO COMPLETAR MI PEDIDO AHORA!
+        </a>
     </div>
-
-    <!-- Notificação Toast -->
-    <div id="toast-notification" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-900 text-white py-2 px-5 rounded-full text-sm shadow-lg opacity-0 translate-y-4 transition-all duration-300 ease-in-out z-[70]">
-        <p id="toast-message"></p>
+    <div id="footer" style="display:none; background-color:#F6F6F6;">
+        <p style="font-size: 10px;">Condiciones de uso / Política de privacidad</p>
     </div>
-
-    <!-- Script principal movido para o final do body -->
-    <script type="module">
-        // Certifica-se de que o DOM está totalmente carregado antes de inicializar o JS
-        document.addEventListener('DOMContentLoaded', () => {
-
-             // Função para inicializar os ícones Lucide de forma segura
-            const initializeIcons = () => {
-                if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
-                    lucide.createIcons();
-                } else {
-                    console.warn("Lucide library not loaded yet, trying again in 100ms...");
-                    // Tenta novamente após um curto atraso se lucide ainda não estiver disponível
-                    setTimeout(initializeIcons, 100);
-                }
-            };
-            
-            // =================================================================================
-            // CONFIGURACIÓN Y DATOS INICIALES
-            // =================================================================================
-            const IMG_BASE_URL = "https://receitas.portalvenda.com/area-de-membros/imagens/";
-            const SVG_PLACEHOLDER = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90'%3E%3Crect width='160' height='90' fill='%23e0e0e0'/%3E%3Ctext x='50%' y='50%' fill='%23999' font-size='12' text-anchor='middle' dominant-baseline='middle'%3Esin imagen%3C/text%3E%3C/svg%3E`;
-
-            const BANNERS = [
-                { image: 'https://kvsbr.github.io/membros/banner/Banner%20Checkout%20-%20Sanar%20con%20Sabor.png', alt: 'Banner Sanar con Sabor' },
-                { image: 'https://kvsbr.github.io/membros/cards/PANES%20MEDICINALES.png', alt: 'Banner Panes Medicinales' },
-                { image: 'https://kvsbr.github.io/membros/cards/FREIDORA%20DE%20AIRE.png', alt: 'Banner Freidora de Aire' }
-            ];
-
-            // Enum para tipos de contenido
-            const CONTENT_TYPE = {
-                SUBPAGE: 'subpage',
-                MODAL_IFRAME: 'modal-iframe',
-                MODAL_YOUTUBE: 'modal-youtube',
-                MODAL_VIDEO: 'modal-video',
-                MODAL_RECIPE: 'modal-recipe',
-                MODAL_DOWNLOAD: 'modal-download',
-                LOCKED: 'locked',
-                UPSELL_PAGE: 'upsell_page'
-            };
-
-            // --- Dados de los cards del Panel Principal ---
-            const PROGRAMA_PRINCIPAL = [
-                 { type: CONTENT_TYPE.SUBPAGE, title: 'Sanar con Sabor - 700 RECETAS', image: 'https://kvsbr.github.io/membros/cards/Sanar%20con%20Sabor%20-%20700%20Recetas.png', cardStyle: 'dark' },
-            ];
-
-            const LIBROS_ITEMS = [
-                {
-                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
-                    title: 'Panes Medicinales: El Secreto para NO Abandonar la Dieta',
-                    image: 'https://kvsbr.github.io/membros/cards/PANES%20MEDICINALES.png',
-                    cardStyle: 'light',
-                    description: `Este módulo reúne mais de 40 recetas de panes saludables, elaborados con harinas naturales, vegetales y semillas que reemplazan el trigo sin perder el sabor ni la textura. Cada receta fue diseñada para lograr panes esponjosos, nutritivos y fáciles de preparar, perfectos para acompañar cualquier comida o disfrutar en el desayuno.
-
-Incluye:
-
-Panes clásicos y caseros, como pan de avena, pan integral, pan de maíz y pan rústico.
-
-Versiones funcionales con ingredientes antiinflamatorios: linaza, almendra, camote, yuca, garbanzos y batata.
-
-Panes especiales para AirFryer, sartén o microondas — ideales para quien busca practicidad diaria.
-
-Opciones dulces y gourmet, como pan de banana, pan de canela, pan brioche y pan australiano.
-
-Recetas creativas como pizza sin gluten, empanadas, focaccia y pastas caseras saludables.
-
-Cada receta demuestra que comer sin gluten no es una restricción, sino una liberación, permitindo disfrutar del pan sin pesadez ni inflamación.`,
-                    downloadUrl: 'https://kvsbr.github.io/membros/ebooks/PANES%20SIN%20GLUTEN.pdf'
-                },
-                {
-                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
-                    title: 'Freidora de Aire: El Antídoto Para Tus Recaídas',
-                    image: 'https://kvsbr.github.io/membros/cards/FREIDORA%20DE%20AIRE.png',
-                    cardStyle: 'light',
-                    description: `Este módulo reúne mais de 80 recetas exclusivas para preparar en freidora de aire, combinando practicidad, salud y sabor. Todas las recetas son sin gluten, sin azúcar refinada y bajas en grasas, logrando texturas crujientes y sabrosas sin necesidad de freír en aceite.
-
-Incluye:
-
-Entradas y botanas saludables, como croquetas, nuggets, empanadas, papas sazonadas y chips vegetales.
-
-Platos principales con pollo, pescado, tofu o verduras, perfectamente dorados sin exceso de grasa.
-
-Panecillos y postres ligeros, como muffins, donas o galletas adaptadas para freidora de aire.
-
-Técnicas paso a paso para ajustar tiempo, temperatura y combinaciones según el tipo de alimento.
-
-Este módulo enseña a cocinar de forma rápida y antiinflamatoria, conservando los nutrientes y el sabor real de los ingredientes — ideal para quienes buscan recetas prácticas en su día a dia.`,
-                    downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Freir%20Salud%20-%20Recetas%20SIN%20Gluten%20En%20La%20Freidora%20de%20Aire_compressed.pdf'
-                },
-                {
-                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
-                    title: 'Sopas que Curan: El Detox que Reinicia tu Cuerpo en 48 Horas',
-                    image: 'https://kvsbr.github.io/membros/cards/SOPAS%20QUE%20CURAN.png',
-                    cardStyle: 'light',
-                    description: `Este módulo presenta 10 recetas de sopas curativas junto con una guía educativa sobre cómo usarlas para desinflamar el cuerpo, fortalecer el sistema inmunológico y mejorar la digestión. Combina sabor, nutrición y bienestar en cada cucharada, mostrando cómo los ingredientes naturales pueden sanar desde adentro.
-
-Incluye:
-
-Recetas funcionales como crema de calabaza con coco, sopa de lentejas con cúrcuma, sopa thai con jengibre, y crema de hinojo con acelgas.
-
-Explicación de ingredientes clave (cúrcuma, jengibre, brócoli, ajo, espinaca, coco, limón, almendras, etc.) y sus beneficios antiinflamatorios.
-
-Guía práctica con sustituciones, toppings saludables, consejos de conservación y plan semanal detox.
-
-Plan de 7 días de sopas detox, ideal para depurar el cuerpo, reducir la hinchazón y aumentar la energía.
-
-Cada receta es sencilla, deliciosa y con enfoque funcional — perfecta para mujeres que buscan sanar su metabolismo sin dejar de disfrutar el placer de comer.`,
-                    downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sopas%20Detox%20y%20Antiinflamatorias.pdf'
-                },
-                {
-                    type: CONTENT_TYPE.UPSELL_PAGE,
-                    title: 'Oferta: Postres Saludables',
-                    image: 'https://kvsbr.github.io/membros/cards/CENAS%20ANTIINFLAMATORIAS.png',
-                    cardStyle: 'light',
-                    upsellTitle: 'Postres que Sanan',
-                    upsellImage: 'https://kvsbr.github.io/membros/cards/CENAS%20ANTIINFLAMATORIAS.png',
-                    upsellDescription: `Descubre el placer de comer postres deliciosos que cuidan de tu salud. Este libro exclusivo te enseña a preparar dulces sin gluten, sin azúcar y llenos de nutrientes. ¡Ideal para complementar tu estilo de vida saludable!`,
-                    checkoutUrl: '#'
-                }
-            ];
-
-            const BONOS_ITEMS = [
-                {
-                    type: CONTENT_TYPE.MODAL_IFRAME,
-                    title: 'Bono: 7 Tortillas Antiinflamatorias',
-                    image: 'https://kvsbr.github.io/membros/cards/7%20TORTILLAS%20ANTIINFLAMATORIAS.png',
-                    cardStyle: 'dark',
-                    iframeSrc: 'https://miembros.sanarconsabor.site/tortillas/',
-                    iframeTitle: '7 Tortillas Antiinflamatorias'
-                },
-                {
-                    type: CONTENT_TYPE.MODAL_YOUTUBE,
-                    title: 'Bono: Rutina de Ejercicios',
-                    image: '',
-                    cardStyle: 'light',
-                    description: `Video exclusivo con una rutina de 15 minutos para hacer en casa.`,
-                    youtubeUrl: '#'
-                },
-                 {
-                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
-                    title: 'Bono: Menú Semanal',
-                    image: '',
-                    cardStyle: 'dark',
-                    description: `Un menú semanal listo para descargar e imprimir.`,
-                    downloadUrl: '#'
-                },
-            ];
-
-            const SUBPAGE_ITEMS = [
-                {
-                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
-                    title: 'Módulo 1: Desayunos y Meriendas',
-                    image: 'https://kvsbr.github.io/membros/cards/DESAYUNOS%20Y%20MERIENDAS.png',
-                    cardStyle: 'light',
-                    description: `Este módulo reúne 148 recetas saludables y deliciosas para comenzar el día con energía y bienestar. Encontrarás opciones dulces y saladas, todas sin gluten, sin azúcar y bajas en carbohidratos, ideales para cuidar tu digestión, tu glucosa y tu salud hormonal.
-
-Incluye:
-
-- Galletas, muffins y pasteles elaborados con harinas naturales como almendra, coco y linaza.
-- Huevos y tortillas en múltiples versiones: con espinacas, atún, pollo, brócoli o setas.
-- Panes y pizzas saludables, perfectos para sustituir el pan tradicional sin perder el sabor.
-- Snacks rápidos y quiches sin masa, ideales para meriendas o comidas ligeras.
-
-Cada receta está diseñada para nutrir el cuerpo sin inflamarlo, mantener la saciedad y equilibrar los niveles de energía durante todo el día.`,
-                    downloadUrl: 'https://drive.google.com/uc?export=download&id=148BYuZ8210UgDS_CSzoPODDkTWRb2ssb'
-                },
-                {
-                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
-                    title: 'Módulo 2: Almuerzos Antiinflamatorios',
-                    image: 'https://kvsbr.github.io/membros/cards/ALMUERZOS%20ANTIINFLAMATORIOS.png',
-                    cardStyle: 'light',
-                    description: `Este módulo contiene más de 150 recetas diseñadas para los almuerzos del día, todas sin gluten, sin azúcar y llenas de sabor natural. Cada preparación combina proteínas magras, vegetales frescos, grasas buenas y condimentos funcionales que ayudan a mantener una digestión ligera y una sensación de saciedad prolongada.
-
-Encontrarás:
-
-- Platos principales con pollo, pescado, carne o tofu, acompañados de vegetales o salsas naturales.
-- Ensaladas completas y bowls nutritivos ideales para quienes buscan comidas ligeras pero satisfactorias.
-- Pasteles salados, tortillas y quiches con combinaciones creativas de verduras, hierbas y quesos sin lactosa.
-- Recetas al horno y salteados rápidos que conservan los nutrientes y realzan el sabor natural de los alimentos.
-
-Estas recetas fueron pensadas para sanar desde la mesa del medodía, ayudando a equilibrar hormonas, reducir la inflamação y mantener la energía estable durante la tarde.`,
-                    downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%202.pdf'
-                },
-                {
-                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
-                    title: 'Módulo 3: Dulces Y Postres',
-                    image: 'https://kvsbr.github.io/membros/cards/DULCES%20Y%20POSTRES.png',
-                    cardStyle: 'light',
-                    description: `Este módulo reúne más de 120 recetas de repostería saludable, todas sin gluten, sin azúcar refinada y sin harinas inflamatorias. Está pensado para quienes desean disfrutar del sabor dulce sin romper su bienestar ni elevar la glucosa.
-
-Incluye:
-
-Tortas, pasteles y panqués con harinas naturales como almendra, coco y avena sin gluten.
-
-Brownies, galletas, trufas y bombones elaborados con endulzantes naturales como dátiles, stevia o eritritol.
-
-Postres fríos y cremosos, como mousse de chocolate, cheesecake sin horno y helados sin lácteos.
-
-Recetas con frutas, cacao y especias que activan la saciedad y el equilibrio hormonal.
-
-Cada receta busca reconciliar el placer con la salud, demostrando que comer sin azúcar ni gluten puede ser un acto de amor propio.`,
-                    downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%203.pdf'
-                },
-                {
-                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
-                    title: 'Módulo 4: Cenas Antiinflamatorias',
-                    image: 'https://kvsbr.github.io/membros/cards/CENAS%20ANTIINFLAMATORIAS.png',
-                    cardStyle: 'light',
-                    description: `Este módulo reúne más de 150 recetas pensadas para las noches: ligeras, nutritivas y llenas de sabor natural. Todas son sin gluten, sin azúcar y con combinaciones antiinflamatorias que favorecen una buena digestión y un descanso profundo.
-
-Incluye:
-
-Platos principales con pollo, pescado, carne o tofu, acompañados de verduras o salsas ligeras.
-
-Cremas, sopas y gratinados con ingredientes funcionales como calabaza, coliflor, espinaca o jengibre.
-
-Ensaladas completas con proteínas y grasas buenas, ideales para cenas rápidas o ligeras.
-
-Preparaciones al horno y salteados suaves que conservan los nutrientes y evitan pesadez nocturna.
-
-Cada receta está diseñada para nutrir sin inflamar, ayudando al cuerpo a regenerarse durante la noche y manteniendo el equilibrio hormonal.`,
-                    downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%204.pdf'
-                },
-                {
-                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
-                    title: 'Módulo 5: Salsas y Untables Saludables',
-                    image: 'https://kvsbr.github.io/membros/cards/SALSAS%20Y%20UNTABLES%20SALUDABLES.png',
-                    cardStyle: 'light',
-                    description: `Este módulo reúne más de 30 recetas de salsas, mayonesas, dips y patés 100 % naturales, ideales para acompañar panes, ensaladas, carnes o snacks. Todas las preparaciones son sin gluten, sin azúcar y con grasas saludables, perfectas para dar sabor sin causar inflamación.
-
-Incluye:
-
-Mayonesas funcionales (de aguacate, linaza, o cetogénica casera).
-
-Salsas frescas y aromáticas, como pesto, balsámica, de hierbas, menta o maracuyá.
-
-Untables salados (de pollo, atún, brócoli, pavo o pepino con queso crema).
-
-Patés cremosos y naturales elaborados con vegetales, frutos secos o legumbres.
-
-Versiones dulces y nutritivas, como pasta de avellanas o limón con mantequilla de nuez.
-
-Cada receta transforma ingredientes simples en acompañamientos gourmet, aportando sabor, textura y beneficios antiinflamatorios sin procesados ni aditivos.`,
-                    downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%205.pdf'
-                },
-                {
-                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
-                    title: 'Módulo 6: Harinas y Leches Vegetales',
-                    image: 'https://kvsbr.github.io/membros/cards/HARINAS%20Y%20LECHES%20VEGETALES.png',
-                    cardStyle: 'light',
-                    description: `Este módulo enseña cómo preparar harinas y leches naturales, funcionales y sin procesar, ideales para una alimentación antiinflamatoria y libre de gluten. Son bases esenciales para crear panes, postres, batidos y recetas saludables en casa.
-
-Incluye:
-
-Harinas naturales elaboradas a partir de maní, coco, linaza, berenjena, pollo, maracuyá, calabaza y girasol.
-
-Leches vegetales caseras de maní, anacardos (nuez de la India), coco, sésamo y agua de coco.
-
-Procesos detallados para obtener texturas finas y sabores frescos, sin aditivos ni conservantes.
-
-Consejos de almacenamiento y conservación para mantener la calidad nutricional.
-
-Estas recetas permiten reemplazar productos industriales con alternativas más saludables, ricas en fibra, proteína y grasas buenas, fortaleciendo la salud intestinal y reduciendo la inflamación.`,
-                    downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%206.pdf'
-                },
-                {
-                    type: CONTENT_TYPE.MODAL_DOWNLOAD,
-                    title: 'Módulo 7: Bebidas Funcionales y Refrescantes',
-                    image: 'https://kvsbr.github.io/membros/cards/BEBIDAS%20FUNCIONALES%20Y%20REFRESCANTES.png',
-                    cardStyle: 'light',
-                    description: `Este módulo reúne más de 50 recetas de bebidas naturales, diseñadas para hidratar, desintoxicar y revitalizar el cuerpo sin azúcar ni lácteos. Todas están elaboradas con ingredientes funcionales como frutas, hierbas, especias y semillas que promovem equilíbrio hormonal, digestión ligera y energía sostenida.
-
-Incluye:
-
-Infusiones y tés terapéuticos (manzanilla, jengibre, hibisco, carqueja, graviola, diente de león, entre otros).
-
-Bebidas detox y antioxidantes, ideales para reducir la inflamación y depurar el organismo.
-
-Jugos naturales y vitaminas con combinaciones creativas de frutas, verduras y superalimentos.
-
-Batidos energéticos y bebidas funcionales, como isotónicos caseros, licuados de coco, açaí y aguacate.
-
-Opciones calientes y frías, adaptables a cualquier momento del día o estación del año.
-
-Cada receta está pensada para reemplazar bebidas industrializadas por alternativas deliciosas, antiinflamatorias y llenas de vida.`,
-                    downloadUrl: 'https://kvsbr.github.io/membros/ebooks/Sanar%20con%20Sabor%20-%20700%20Recetas%20-%20Part.%207.pdf'
-                }
-            ];
-
-            // =================================================================================
-            // ELEMENTOS DEL DOM
-            // =================================================================================
-            const appContent = document.getElementById('app-content');
-            const dashboardSection = document.getElementById('dashboard-section');
-            const subpageSection = document.getElementById('subpage-section');
-            const upsellPageSection = document.getElementById('upsell-page-section');
-            const feedSection = document.getElementById('feed-section');
-            const communitySection = document.getElementById('community-section');
-            const profileSection = document.getElementById('profile-section');
-
-            const bannerCarousel = document.getElementById('banner-carousel');
-            const bannerSlides = document.getElementById('banner-slides');
-            const prevBannerBtn = document.getElementById('prev-banner');
-            const nextBannerBtn = document.getElementById('next-banner');
-            const bannerDotsContainer = document.getElementById('banner-dots');
-
-            const librosGrid = document.getElementById('libros-grid');
-            const bonosGrid = document.getElementById('bonos-grid');
-            const subpageGrid = document.getElementById('subpage-grid');
-            const backToDashboardBtn = document.getElementById('back-to-dashboard');
-            const subpageTitle = document.getElementById('subpage-title');
-            
-            const backToDashboardFromUpsellBtn = document.getElementById('back-to-dashboard-from-upsell');
-            const upsellImage = document.getElementById('upsell-image');
-            const upsellTitle = document.getElementById('upsell-title');
-            const upsellDescription = document.getElementById('upsell-description');
-            const upsellCheckoutButton = document.getElementById('upsell-checkout-button');
-
-            const modal = document.getElementById('content-modal');
-            const modalTitle = document.getElementById('modal-title');
-            const modalCloseBtn = document.getElementById('modal-close-btn');
-            const iframePlayer = document.getElementById('iframe-player');
-            const modalIframe = document.getElementById('modal-iframe');
-            const videoPlayer = document.getElementById('video-player');
-            const modalVideo = document.getElementById('modal-video');
-
-            const modalRecipeDetails = document.getElementById('modal-recipe-details');
-            const modalDescriptionSection = document.getElementById('modal-description-section');
-            const modalDescriptionText = document.getElementById('modal-description-text');
-            const modalIngredientsSection = document.getElementById('modal-ingredients-section');
-            const modalIngredients = document.getElementById('modal-ingredients');
-            const modalPreparationSection = document.getElementById('modal-preparation-section');
-            const modalPreparation = document.getElementById('modal-preparation');
-            const modalActionButtons = document.getElementById('modal-action-buttons');
-
-            const modalDownloadDetails = document.getElementById('modal-download-details');
-            const modalDownloadImage = document.getElementById('modal-download-image');
-            const modalDownloadDescriptionText = document.getElementById('modal-download-description-text');
-            const modalDownloadButton = document.getElementById('modal-download-button'); // ID do botão/link de download unificado
-
-            const notificationButton = document.getElementById('notification-button');
-            const notificationModal = document.getElementById('notification-modal');
-            const closeNotificationModalBtn = document.getElementById('close-notification-modal');
-            const notificationPulse = notificationButton ? notificationButton.querySelector('.animate-pulse') : null; // Selecionado aqui com segurança
-
-            const toastNotification = document.getElementById('toast-notification');
-            const toastMessage = document.getElementById('toast-message');
-            
-            let currentView = 'dashboard-section';
-            let lastFocusedElement;
-            let toastTimeout;
-
-            // =================================================================================
-            // LÓGICA DO CARROSSEL DE BANNERS
-            // =================================================================================
-            let currentBannerIndex = 0;
-            let bannerInterval;
-
-            const setupCarousel = () => {
-                if (!bannerCarousel || !bannerSlides || !bannerDotsContainer) return; // Add check if carousel elements exist
-                if (BANNERS.length === 0) {
-                    bannerCarousel.innerHTML = '<div class="w-full h-full bg-gray-200 flex items-center justify-center"><p class="text-gray-500">Nenhum banner configurado</p></div>';
-                    return;
-                }
-                
-                bannerSlides.innerHTML = '';
-                bannerDotsContainer.innerHTML = '';
-
-
-                BANNERS.forEach((banner, index) => {
-                    const slide = document.createElement('div');
-                    slide.className = 'w-full h-full flex-shrink-0';
-                    const img = document.createElement('img');
-                    img.className = 'w-full h-full object-cover object-top';
-                    img.alt = banner.alt;
-                    loadImageSmart(img, banner.image);
-                    slide.appendChild(img);
-                    bannerSlides.appendChild(slide);
-
-                    const dot = document.createElement('button');
-                    dot.className = 'w-2.5 h-2.5 rounded-full bg-white bg-opacity-50 transition-all duration-300';
-                    dot.addEventListener('click', () => {
-                        showBanner(index);
-                        resetBannerInterval();
-                    });
-                    bannerDotsContainer.appendChild(dot);
-                });
-
-                showBanner(0);
-                startBannerInterval();
-            };
-
-            const showBanner = (index) => {
-                 if (!bannerSlides || !bannerDotsContainer || BANNERS.length === 0) return; // Add checks
-                if (index >= BANNERS.length) index = 0;
-                else if (index < 0) index = BANNERS.length - 1;
-
-                bannerSlides.style.transform = `translateX(-${index * 100}%)`;
-                currentBannerIndex = index;
-
-                const dots = bannerDotsContainer.children;
-                if(dots.length > 0) { // Check if dots exist
-                    for (let i = 0; i < dots.length; i++) {
-                        dots[i].classList.toggle('bg-opacity-100', i === index);
-                        dots[i].classList.toggle('w-4', i === index);
-                    }
-                }
-            };
-
-            const nextBanner = () => showBanner(currentBannerIndex + 1);
-            const prevBanner = () => showBanner(currentBannerIndex - 1);
-            
-            const startBannerInterval = () => {
-                 if (BANNERS.length > 1) { // Only start interval if more than one banner
-                    clearInterval(bannerInterval); // Clear previous interval just in case
-                    bannerInterval = setInterval(nextBanner, 5000);
-                 }
-            };
-
-            const resetBannerInterval = () => {
-                clearInterval(bannerInterval);
-                startBannerInterval();
-            };
-            
-            if (prevBannerBtn) {
-                prevBannerBtn.addEventListener('click', () => {
-                    prevBanner();
-                    resetBannerInterval();
-                });
+    
+    <script>
+        var video = document.getElementById('video');
+        var overlay = document.getElementById('overlay');
+        var videoSrc = "https://cdn.jsdelivr.net/gh/brengrassy/adios3@f37b1edd755ed644c4388ab468828cd3fd953b32/Adios-Gluten.m3u8";
+        
+        if (Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSrc;
+        }
+        
+        function restartVideo() {
+            video.currentTime = 0; // Reinicia o vídeo do começo
+            video.muted = false;
+            video.play();
+            overlay.style.display = "none";
+        }
+        
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        document.getElementById("num-persons").innerText = getRandomInt(2127, 4579);
+        setInterval(function() {
+            var current = parseInt(document.getElementById("num-persons").innerText);
+            document.getElementById("num-persons").innerText = current + 1;
+        }, 1111);
+
+        // --- SCRIPT DO BOTÃO COM DELAY (Início da Modificação) ---
+        setTimeout(function() {
+            var buttonContainer = document.getElementById('delayed-button-container');
+            if (buttonContainer) {
+                buttonContainer.style.display = 'block';
             }
+        }, 600000); // 10 minutos (10 * 60 * 1000 ms)
+        // --- (Fim da Modificação) ---
 
-            if (nextBannerBtn) {
-                nextBannerBtn.addEventListener('click', () => {
-                    nextBanner();
-                    resetBannerInterval();
-                });
-            }
-
-            // =================================================================================
-            // FUNCIONES AUXILIARES
-            // =================================================================================
-            const showToast = (message) => {
-                 if (!toastNotification || !toastMessage) return; // Add check
-                clearTimeout(toastTimeout);
-                toastMessage.textContent = message;
-                toastNotification.classList.remove('opacity-0', 'translate-y-4');
-                toastNotification.classList.add('opacity-100', 'translate-y-0');
-
-                toastTimeout = setTimeout(() => {
-                    toastNotification.classList.remove('opacity-100', 'translate-y-0');
-                    toastNotification.classList.add('opacity-0', 'translate-y-4');
-                }, 3000);
-            };
-
-            const convertToEmbedUrl = (url) => {
-                let videoId = null;
-                if(!url || typeof url !== 'string') return null;
-                try {
-                    if (url.includes('youtu.be/')) {
-                        videoId = url.split('youtu.be/')[1].split('?')[0];
-                    } else if (url.includes('watch?v=')) {
-                       const urlParams = new URLSearchParams(new URL(url).search);
-                       videoId = urlParams.get('v');
-                    } else if (url.includes('/shorts/')) {
-                        videoId = url.split('/shorts/')[1].split('?')[0];
-                    }
-                } catch (e) {
-                    console.error("Error parsing YouTube URL:", e);
-                    return null;
-                }
-                return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-            };
-
-            const loadImageSmart = (imgElement, imageName) => {
-                 if (!imageName) {
-                    imgElement.src = SVG_PLACEHOLDER;
-                    return;
-                }
-
-                if (imageName.startsWith('http')) {
-                    const imgTest = new Image(); // Use Image object to check load/error
-                    imgTest.onload = () => { imgElement.src = imageName; };
-                    imgTest.onerror = () => { imgElement.src = SVG_PLACEHOLDER; };
-                    imgTest.src = imageName;
-                    return;
-                }
-                 imgElement.src = SVG_PLACEHOLDER; // Default to placeholder if not http
-            };
-
-            const createCard = (item) => {
-                const card = document.createElement('div');
-                card.className = 'clickable-card card-style flex flex-col w-full';
-
-                const cardImageContainer = document.createElement('div');
-                cardImageContainer.className = 'relative w-full aspect-[4/3] flex items-center justify-center bg-gray-100';
-                const img = document.createElement('img');
-                img.loading = 'lazy';
-                img.decoding = 'async';
-                img.alt = item.title;
-                img.className = 'w-full h-full object-cover object-top';
-                loadImageSmart(img, item.image);
-                cardImageContainer.appendChild(img);
-
-                const cardTitle = document.createElement('div');
-                cardTitle.className = 'p-3 text-center font-semibold text-sm flex-grow flex items-center justify-center min-h-[50px]';
-                cardTitle.textContent = item.title;
-                
-                if (item.cardStyle === 'dark') {
-                    card.classList.add('bg-gray-800');
-                    cardTitle.classList.add('text-white');
-                } else {
-                    cardTitle.classList.add('text-gray-800');
-                }
-
-                if (item.type === CONTENT_TYPE.UPSELL_PAGE) {
-                    img.classList.add('filter', 'grayscale', 'blur-sm');
-                    const upsellOverlay = document.createElement('div');
-                    upsellOverlay.className = 'absolute inset-0 bg-gradient-to-t from-yellow-500/30 to-transparent flex items-center justify-center';
-                    const upsellIcon = document.createElement('i');
-                    upsellIcon.setAttribute('data-lucide', 'lock');
-                    upsellIcon.className = 'w-12 h-12 text-white opacity-90 drop-shadow-lg';
-                    upsellOverlay.appendChild(upsellIcon);
-                    cardImageContainer.appendChild(upsellOverlay); // Corrigido
-                }
-
-                card.appendChild(cardImageContainer);
-                card.appendChild(cardTitle);
-
-                return card;
-            };
-
-            const populateGrid = (gridElement, items) => {
-                 if (!gridElement) return; // Add check if grid exists
-                gridElement.innerHTML = '';
-                items.forEach((item) => {
-                    const card = createCard(item);
-                    card.addEventListener('click', () => {
-                        if (item.type === CONTENT_TYPE.UPSELL_PAGE) {
-                            showUpsellPage(item);
-                        } else if (item.type === CONTENT_TYPE.SUBPAGE) {
-                            showSubpage(item.title);
-                        } else {
-                            openModal(item);
-                        }
-                    });
-                    gridElement.appendChild(card);
-                });
-                initializeIcons(); // Chamar aqui para renderizar ícones como o de cadeado
-            };
-
-            // =================================================================================
-            // LÓGICA DE NAVEGACIÓN Y VISIBILIDAD DE SECCIONES
-            // =================================================================================
-            const showSection = (sectionId) => {
-                const sections = [dashboardSection, subpageSection, upsellPageSection, feedSection, communitySection, profileSection];
-                sections.forEach(section => {
-                    if (section) section.classList.add('hidden'); // Check if section exists
-                 });
-                const targetSection = document.getElementById(sectionId);
-                if (targetSection) {
-                    targetSection.classList.remove('hidden');
-                }
-                currentView = sectionId;
-                window.scrollTo(0, 0);
-            };
-
-            const showDashboard = () => showSection('dashboard-section');
-
-            const showSubpage = (title) => {
-                 if (subpageTitle) subpageTitle.textContent = title; // Check if element exists
-                showSection('subpage-section');
-            };
-            
-            const showUpsellPage = (item) => {
-                if (upsellTitle) upsellTitle.textContent = item.upsellTitle;
-                if (upsellDescription) upsellDescription.textContent = item.upsellDescription;
-                if (upsellCheckoutButton) upsellCheckoutButton.href = item.checkoutUrl;
-                if (upsellImage) loadImageSmart(upsellImage, item.upsellImage);
-                showSection('upsell-page-section');
-            };
-
-            // =================================================================================
-            // LÓGICA DEL MODAL
-            // =================================================================================
-            const openModal = (item) => {
-                 if (!modal) return;
-                lastFocusedElement = document.activeElement;
-                if (modalTitle) modalTitle.textContent = item.iframeTitle || item.title;
-
-                [iframePlayer, videoPlayer, modalRecipeDetails, modalDownloadDetails, modalDescriptionSection, modalIngredientsSection, modalPreparationSection, modalActionButtons].forEach(el => {
-                     if (el) el.classList.add('hidden');
-                });
-                
-                if (modalIframe) {
-                    modalIframe.src = '';
-                    iframePlayer.className = 'hidden'; // Reseta as classes do container do iframe
-                }
-                if (modalVideo) { modalVideo.pause(); modalVideo.src = '';}
-                if (videoPlayer) videoPlayer.className = 'player-container hidden'; // Reseta o container do vídeo
-
-                if (item.type === CONTENT_TYPE.MODAL_IFRAME && iframePlayer && modalIframe) {
-                    iframePlayer.className = 'iframe-container'; // Usa a classe para PDF/Web
-                    iframePlayer.classList.remove('hidden');
-                    modalIframe.src = item.iframeSrc;
-                } else if (item.type === CONTENT_TYPE.MODAL_YOUTUBE && iframePlayer && modalIframe) {
-                    iframePlayer.className = 'player-container'; // Usa a classe para Vídeo
-                    iframePlayer.classList.remove('hidden');
-                    modalIframe.src = convertToEmbedUrl(item.youtubeUrl);
-                } else if (item.type === CONTENT_TYPE.MODAL_DOWNLOAD && modalDownloadDetails && modalDownloadImage && modalDownloadDescriptionText && modalDownloadButton) {
-                    modalDownloadDetails.classList.remove('hidden');
-                    loadImageSmart(modalDownloadImage, item.image);
-                    modalDownloadDescriptionText.textContent = item.description || `Haz clic en el botón de abajo para descargar "${item.title}".`;
-                    
-                    // Limpa o nome do arquivo para usar no atributo 'download'
-                    const safeFilename = (item.title || 'download').replace(/[^a-z0-9_\-\s\.]/gi, '_').replace(/\.+$/, '') + '.pdf';
-                    
-                    // Configura o link de download
-                    modalDownloadButton.href = item.downloadUrl || '#';
-                    modalDownloadButton.setAttribute('download', safeFilename);
-                    
-                    initializeIcons(); // Chamar para renderizar o ícone de download no botão
-                }
-
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                document.body.style.overflow = 'hidden';
-                if(modalCloseBtn) modalCloseBtn.focus();
-            };
-
-            const closeModal = () => {
-                 if (!modal) return;
-                if (modalIframe) modalIframe.src = '';
-                if (modalVideo) { modalVideo.pause(); modalVideo.src = '';}
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                document.body.style.overflow = '';
-                if (lastFocusedElement) lastFocusedElement.focus();
-            };
-            
-            const closeNotificationModal = () => {
-                 if (notificationModal) {
-                    notificationModal.classList.add('hidden');
-                    notificationModal.classList.remove('flex');
-                 }
-            };
-            
-            // =================================================================================
-            // EVENT LISTENERS (Add checks for element existence)
-            // =================================================================================
-            if(backToDashboardBtn) backToDashboardBtn.addEventListener('click', showDashboard);
-            if(backToDashboardFromUpsellBtn) backToDashboardFromUpsellBtn.addEventListener('click', showDashboard);
-            if(modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
-            if(closeNotificationModalBtn) closeNotificationModalBtn.addEventListener('click', closeNotificationModal);
-
-            if (notificationButton) {
-                notificationButton.addEventListener('click', () => {
-                     if (notificationModal) {
-                        notificationModal.classList.remove('hidden');
-                        notificationModal.classList.add('flex');
-                     }
-                    if (notificationPulse) notificationPulse.classList.add('hidden');
-                });
-            }
-
-           if (modal) {
-              modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-           }
-           if (notificationModal) {
-              notificationModal.addEventListener('click', (e) => { if (e.target === notificationModal) closeNotificationModal(); });
-           }
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    if (modal && !modal.classList.contains('hidden')) closeModal();
-                    if (notificationModal && !notificationModal.classList.contains('hidden')) closeNotificationModal();
-                }
-            });
-
-            // =================================================================================
-            // INICIALIZAÇÃO
-            // =================================================================================
-            const initApp = () => {
-                populateGrid(librosGrid, [...PROGRAMA_PRINCIPAL, ...LIBROS_ITEMS]);
-                populateGrid(bonosGrid, BONOS_ITEMS);
-                populateGrid(subpageGrid, SUBPAGE_ITEMS);
-                setupCarousel();
-                initializeIcons(); // Chamada final para garantir que tudo seja renderizado
-            };
-
-            // Inicia o aplicativo
-            initApp();
-        });
     </script>
 </body>
 </html>
-
-
